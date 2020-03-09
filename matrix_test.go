@@ -33,7 +33,7 @@ func TestMinor_ReturnsCorrect(t *testing.T) {
 	}{
 		{
 			input: &Matrix{Order: 1},
-			p:     1, q: 1,
+			p:     0, q: 0,
 			wantMatrix: &Matrix{},
 		},
 		{
