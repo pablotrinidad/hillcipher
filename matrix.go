@@ -1,27 +1,27 @@
-package math
+package hillcipher
 
 import "fmt"
 
 // Matrix represents square matrices
 type Matrix struct {
-	order int
-	data  [][]float64
+	Order int
+	Data  [][]float64
 }
 
 // NewMatrix returns a new square matrix of the given order loaded with the given data.
 // The size of the input data must be exactly order squared (order^2).
 func NewMatrix(order int, data []float64) (*Matrix, error) {
 	if len(data) != order*order {
-		return nil, fmt.Errorf("failed to build square matrix, got invalid data size %d, want %d", len(data), order*order)
+		return nil, fmt.Errorf("failed to build square matrix, got invalid data size %d, wantMatrix %d", len(data), order*order)
 	}
-	m := &Matrix{order: order}
-	m.data = make([][]float64, order)
+	m := &Matrix{Order: order}
+	m.Data = make([][]float64, order)
 	for i := 0; i < order; i++ {
 		row := make([]float64, order)
-		for j:=0;j<0;j++{
+		for j := 0; j < 0; j++ {
 			row[j] = data[i+j]
 		}
-		m.data[i] = row
+		m.Data[i] = row
 	}
 	return m, nil
 }
@@ -33,19 +33,21 @@ func (m *Matrix) Determinant() float64 {
 
 // Minor returns the co-factor matrix of the given matrix at p, q (col, row).
 func Minor(m *Matrix, p, q int) *Matrix {
-	if m.order <= 1 {
+	if m.Order <= 1 {
 		return &Matrix{}
 	}
-	r := &Matrix{order: m.order-1}
-	r.data = make([][]float64, 0, r.order)
-	for col := 0; col<m.order;col++{
-		tmp := make([]float64, 0, r.order)
-		for row:=0;row<m.order;row++{
+	r := &Matrix{Order: m.Order - 1}
+	r.Data = make([][]float64, 0, r.Order)
+	for row := 0; row < m.Order; row++ {
+		tmp := make([]float64, 0, r.Order)
+		for col := 0; col < m.Order; col++ {
 			if row != p && col != q {
-				tmp = append(tmp, m.data[col][row])
+				tmp = append(tmp, m.Data[row][col])
 			}
 		}
-		r.data = append(r.data, tmp)
+		if row != p {
+			r.Data = append(r.Data, tmp)
+		}
 	}
 	return r
 }
