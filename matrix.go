@@ -67,7 +67,7 @@ func (m *Matrix) Determinant() (float64, error) {
 		det += sign * m.Data[0][i] * minor
 		sign *= -1
 	}
-	return 0.0, nil
+	return det, nil
 }
 
 // Minor returns the co-factor matrix of the given matrix at p, q (row, col).
