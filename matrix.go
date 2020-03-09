@@ -1,11 +1,28 @@
 package hillcipher
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Matrix represents square matrices
 type Matrix struct {
 	Order int
 	Data  [][]float64
+}
+
+func (m Matrix) String() string {
+	var b strings.Builder
+	for _, row := range m.Data {
+		for i, item := range row {
+			if i == 0 {
+				b.WriteString("|")
+			}
+			b.WriteString("\t" + fmt.Sprintf("%.2f", item) + "\t|")
+		}
+		b.WriteString("\n")
+	}
+	return b.String()
 }
 
 // NewMatrix returns a new square matrix of the given order loaded with the given data.
@@ -27,8 +44,30 @@ func NewMatrix(order int, data []float64) (*Matrix, error) {
 }
 
 // Determinant returns the matrix determinant
-func (m *Matrix) Determinant() float64 {
-	return 0.0
+func (m *Matrix) Determinant() (float64, error) {
+	if m.Order < 1 {
+		return 0.0, fmt.Errorf("determinant is undefined for order < 1")
+	}
+	if m.Order == 1 {
+		return m.Data[0][0], nil
+	}
+	sign := 1.0
+	var det float64
+	for i := 0; i < m.Order; i++ {
+		cofactor, err := Minor(m, 0, i)
+		if err != nil {
+			// This is impossible unless minor is faulty
+			return 0.0, fmt.Errorf("failed to compute matrix co-factor for matrix %s; %v", m, err)
+		}
+
+		minor, err := cofactor.Determinant()
+		if err != nil {
+			return 0.0, err
+		}
+		det += sign * m.Data[0][i] * minor
+		sign *= -1
+	}
+	return 0.0, nil
 }
 
 // Minor returns the co-factor matrix of the given matrix at p, q (row, col).
