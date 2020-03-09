@@ -43,7 +43,9 @@ func NewMatrix(order int, data []float64) (*Matrix, error) {
 	return m, nil
 }
 
-// Determinant returns the matrix determinant
+// Determinant returns the matrix determinant. This algorithm is extremely slow since it build
+// on the naive approach. Implemente LU decomposition if better performance is required.
+// This approach is O(n!) while LU decomposition is O(n^3).
 func (m *Matrix) Determinant() (float64, error) {
 	if m.Order < 1 {
 		return 0.0, fmt.Errorf("determinant is undefined for order < 1")
