@@ -31,10 +31,13 @@ func (m *Matrix) Determinant() float64 {
 	return 0.0
 }
 
-// Minor returns the co-factor matrix of the given matrix at p, q (col, row).
-func Minor(m *Matrix, p, q int) *Matrix {
+// Minor returns the co-factor matrix of the given matrix at p, q (row, col).
+func Minor(m *Matrix, p, q int) (*Matrix, error) {
+	if 0 > p || p >= m.Order || 0 > q || q >= m.Order {
+		return nil, fmt.Errorf("received row and/or col out of bound")
+	}
 	if m.Order <= 1 {
-		return &Matrix{}
+		return &Matrix{}, nil
 	}
 	r := &Matrix{Order: m.Order - 1}
 	r.Data = make([][]float64, 0, r.Order)
@@ -49,5 +52,5 @@ func Minor(m *Matrix, p, q int) *Matrix {
 			r.Data = append(r.Data, tmp)
 		}
 	}
-	return r
+	return r, nil
 }
