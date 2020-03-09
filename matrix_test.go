@@ -22,7 +22,78 @@ func TestNewMatrix_ThrowsErrorOnInvalidInput(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			data := make([]float64, test.dataSize)
 			if _, err := NewMatrix(test.order, data); err == nil {
-				t.Errorf("NewMatrix(%v, %v) did not fail, should've failed.", test.order, data)
+				t.Errorf("NewMatrix(%v, %v) did not fail, it should have.", test.order, data)
+			}
+		})
+	}
+}
+
+// TestNewMatrix_CorrectMatrixCreation verify matrices are created correctly
+func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
+	tests := []struct {
+		name       string
+		order      int
+		input      []float64
+		wantMatrix *Matrix
+	}{
+		{
+			name:       "order 1",
+			order:      1,
+			input:      []float64{-99999},
+			wantMatrix: &Matrix{Order: 1, Data: [][]float64{{-99999}}},
+		},
+		{
+			name:  "order 2",
+			order: 2,
+			input: []float64{12, 34, 56, 78},
+			wantMatrix: &Matrix{
+				Order: 2,
+				Data: [][]float64{
+					{12, 34},
+					{56, 78},
+				},
+			},
+		},
+		{
+			name:  "order 10",
+			order: 10,
+			input: []float64{
+				52, 37, 38, 88, 89, 9, 23, 95, 99, 16,
+				59, 23, 35, 36, 43, 13, 26, 46, 47, 85,
+				7, 23, 84, 24, 83, 100, 30, 72, 86, 93,
+				54, 94, 77, 59, 50, 29, 94, 64, 43, 37,
+				68, 17, 65, 23, 19, 43, 68, 78, 15, 73,
+				93, 96, 30, 86, 52, 55, 37, 58, 31, 22,
+				58, 41, 85, 35, 18, 54, 26, 96, 43, 73,
+				41, 88, 52, 36, 42, 6, 69, 12, 32, 3,
+				72, 57, 9, 15, 78, 90, 63, 77, 17, 1,
+				80, 49, 18, 67, 47, 22, 86, 13, 2, 33,
+			},
+			wantMatrix: &Matrix{
+				Order: 10,
+				Data: [][]float64{
+					{52, 37, 38, 88, 89, 9, 23, 95, 99, 16},
+					{59, 23, 35, 36, 43, 13, 26, 46, 47, 85},
+					{7, 23, 84, 24, 83, 100, 30, 72, 86, 93},
+					{54, 94, 77, 59, 50, 29, 94, 64, 43, 37},
+					{68, 17, 65, 23, 19, 43, 68, 78, 15, 73},
+					{93, 96, 30, 86, 52, 55, 37, 58, 31, 22},
+					{58, 41, 85, 35, 18, 54, 26, 96, 43, 73},
+					{41, 88, 52, 36, 42, 6, 69, 12, 32, 3},
+					{72, 57, 9, 15, 78, 90, 63, 77, 17, 1},
+					{80, 49, 18, 67, 47, 22, 86, 13, 2, 33},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotMatrix, err := NewMatrix(test.order, test.input)
+			if err != nil {
+				t.Errorf("NewMatrix(%v, %v) returned unexpected error; %v.", test.order, test.input, err)
+			}
+			if diff := cmp.Diff(test.wantMatrix, gotMatrix); diff != "" {
+				t.Errorf("NewMatrix(%v, %v) = %v; want %v; diff: want -> got %s", test.order, test.input, gotMatrix, test.wantMatrix, diff)
 			}
 		})
 	}
@@ -243,6 +314,25 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 			}
 			if gotDet != test.wantDet {
 				t.Errorf("got incorrect determinant %.4f want %.4f", gotDet, test.wantDet)
+			}
+		})
+	}
+}
+
+// TestDeterminant_InvalidOrder verifies fails when invalid order is sent
+func TestDeterminant_InvalidOrder(t *testing.T) {
+	tests := []struct {
+		name   string
+		matrix *Matrix
+	}{
+		{name: "order 0", matrix: &Matrix{Order: 0, Data: [][]float64{}}},
+		{name: "negative order", matrix: &Matrix{Order: -13, Data: [][]float64{}}},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := test.matrix.Determinant(); err == nil {
+				t.Errorf("Determinant() of matrix did not fail, it should have\n%v.", test.name)
 			}
 		})
 	}

@@ -35,8 +35,8 @@ func NewMatrix(order int, data []float64) (*Matrix, error) {
 	m.Data = make([][]float64, order)
 	for i := 0; i < order; i++ {
 		row := make([]float64, order)
-		for j := 0; j < 0; j++ {
-			row[j] = data[i+j]
+		for j := 0; j < order; j++ {
+			row[j] = data[(i*order)+j]
 		}
 		m.Data[i] = row
 	}
@@ -54,16 +54,8 @@ func (m *Matrix) Determinant() (float64, error) {
 	sign := 1.0
 	var det float64
 	for i := 0; i < m.Order; i++ {
-		cofactor, err := Minor(m, 0, i)
-		if err != nil {
-			// This is impossible unless minor is faulty
-			return 0.0, fmt.Errorf("failed to compute matrix co-factor for matrix %s; %v", m, err)
-		}
-
-		minor, err := cofactor.Determinant()
-		if err != nil {
-			return 0.0, err
-		}
+		cofactor, _ := Minor(m, 0, i)
+		minor, _ := cofactor.Determinant()
 		det += sign * m.Data[0][i] * minor
 		sign *= -1
 	}
