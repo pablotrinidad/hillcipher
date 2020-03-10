@@ -177,8 +177,8 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 	}
 }
 
-// TestMinut_ThrowsErrorOnInvalidIndexes verifies row and column indices are in valid range
-func TestMinut_ThrowsErrorOnInvalidIndexes(t *testing.T) {
+// TestMinor_ThrowsErrorOnInvalidIndexes verifies row and column indices are in valid range
+func TestMinor_ThrowsErrorOnInvalidIndexes(t *testing.T) {
 	tests := []struct {
 		name              string
 		matrixOrder, p, q int
@@ -202,8 +202,8 @@ func TestMinut_ThrowsErrorOnInvalidIndexes(t *testing.T) {
 	}
 }
 
-// TestString_RetursCorrectValue verifies returned string is the expected
-func TestString_RetursCorrectValue(t *testing.T) {
+// TestString_ReturnsCorrectValue verifies returned string is the expected
+func TestString_ReturnsCorrectValue(t *testing.T) {
 	tests := []struct {
 		name    string
 		matrix  *Matrix
