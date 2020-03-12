@@ -8,18 +8,18 @@ import (
 // TestResidue check definition of Residue function
 func TestResidue(t *testing.T) {
 	tests := []struct {
-		a, m, r int
+		a, mod, wantResidue int
 	}{
-		{a: 87, m: 26, r: 9},
-		{a: -38, m: 26, r: 14},
-		{a: -26, m: 26, r: 0},
+		{a: 87, mod: 26, wantResidue: 9},
+		{a: -38, mod: 26, wantResidue: 14},
+		{a: -26, mod: 26, wantResidue: 0},
 	}
 	for _, test := range tests {
-		name := fmt.Sprintf("Reminder(a:%d, m:%d)", test.a, test.m)
+		name := fmt.Sprintf("Reminder(a:%d, m:%d)", test.a, test.mod)
 		t.Run(name, func(t *testing.T) {
-			r := Residue(test.a, test.m)
-			if r != test.r {
-				t.Errorf("%s = %d, want %d", name, r, test.r)
+			r := Residue(test.a, test.mod)
+			if r != test.wantResidue {
+				t.Errorf("%s = %d, want %d", name, r, test.wantResidue)
 			}
 		})
 	}

@@ -20,7 +20,7 @@ func TestNewMatrix_ThrowsErrorOnInvalidInput(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			data := make([]float64, test.dataSize)
+			data := make([]int, test.dataSize)
 			if _, err := NewMatrix(test.order, data); err == nil {
 				t.Errorf("NewMatrix(%v, %v) did not fail, it should have.", test.order, data)
 			}
@@ -33,22 +33,22 @@ func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
 	tests := []struct {
 		name       string
 		order      int
-		input      []float64
+		input      []int
 		wantMatrix *Matrix
 	}{
 		{
 			name:       "order 1",
 			order:      1,
-			input:      []float64{-99999},
-			wantMatrix: &Matrix{Order: 1, Data: [][]float64{{-99999}}},
+			input:      []int{-99999},
+			wantMatrix: &Matrix{Order: 1, Data: [][]int{{-99999}}},
 		},
 		{
 			name:  "order 2",
 			order: 2,
-			input: []float64{12, 34, 56, 78},
+			input: []int{12, 34, 56, 78},
 			wantMatrix: &Matrix{
 				Order: 2,
-				Data: [][]float64{
+				Data: [][]int{
 					{12, 34},
 					{56, 78},
 				},
@@ -57,7 +57,7 @@ func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
 		{
 			name:  "order 10",
 			order: 10,
-			input: []float64{
+			input: []int{
 				52, 37, 38, 88, 89, 9, 23, 95, 99, 16,
 				59, 23, 35, 36, 43, 13, 26, 46, 47, 85,
 				7, 23, 84, 24, 83, 100, 30, 72, 86, 93,
@@ -71,7 +71,7 @@ func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
 			},
 			wantMatrix: &Matrix{
 				Order: 10,
-				Data: [][]float64{
+				Data: [][]int{
 					{52, 37, 38, 88, 89, 9, 23, 95, 99, 16},
 					{59, 23, 35, 36, 43, 13, 26, 46, 47, 85},
 					{7, 23, 84, 24, 83, 100, 30, 72, 86, 93},
@@ -117,19 +117,19 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 			name: "order 2",
 			matrix: &Matrix{
 				Order: 2,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 3},
 					{9, -1},
 				},
 			},
 			p: 0, q: 0,
-			wantMatrix: &Matrix{Order: 1, Data: [][]float64{{-1}}},
+			wantMatrix: &Matrix{Order: 1, Data: [][]int{{-1}}},
 		},
 		{
 			name: "order 3 middle cross",
 			matrix: &Matrix{
 				Order: 3,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -138,7 +138,7 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 			p: 1, q: 1,
 			wantMatrix: &Matrix{
 				Order: 2,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 3},
 					{7, 9},
 				},
@@ -148,7 +148,7 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 			name: "order 3 edge cross",
 			matrix: &Matrix{
 				Order: 3,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -157,7 +157,7 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 			p: 0, q: 0,
 			wantMatrix: &Matrix{
 				Order: 2,
-				Data: [][]float64{
+				Data: [][]int{
 					{5, 6},
 					{8, 9},
 				},
@@ -190,7 +190,7 @@ func TestMinor_ThrowsErrorOnInvalidIndexes(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			data := make([]float64, test.matrixOrder*test.matrixOrder)
+			data := make([]int, test.matrixOrder*test.matrixOrder)
 			m, err := NewMatrix(test.matrixOrder, data)
 			if err != nil {
 				t.Fatalf("NewMatrix(%d, %v) returned unexpected error; %v", test.matrixOrder, data, err)
@@ -213,7 +213,7 @@ func TestString_ReturnsCorrectValue(t *testing.T) {
 			name: "empty matrix",
 			matrix: &Matrix{
 				Order: 0,
-				Data:  [][]float64{},
+				Data:  [][]int{},
 			},
 			wantRep: "",
 		},
@@ -221,21 +221,21 @@ func TestString_ReturnsCorrectValue(t *testing.T) {
 			name: "order 1",
 			matrix: &Matrix{
 				Order: 1,
-				Data:  [][]float64{{1}},
+				Data:  [][]int{{1}},
 			},
-			wantRep: "|\t1.00\t|\n",
+			wantRep: "|\t1\t|\n",
 		},
 		{
 			name: "order 3",
 			matrix: &Matrix{
 				Order: 3,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
 				},
 			},
-			wantRep: "|	1.00	|	2.00	|	3.00	|\n|	4.00	|	5.00	|	6.00	|\n|	7.00	|	8.00	|	9.00	|\n",
+			wantRep: "|	1	|	2	|	3	|\n|	4	|	5	|	6	|\n|	7	|	8	|	9	|\n",
 		},
 	}
 	for _, test := range tests {
@@ -253,13 +253,13 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 	tests := []struct {
 		name    string
 		matrix  *Matrix
-		wantDet float64
+		wantDet int
 	}{
 		{
 			name: "order 1",
 			matrix: &Matrix{
 				Order: 1,
-				Data:  [][]float64{{1}},
+				Data:  [][]int{{1}},
 			},
 			wantDet: 1.0,
 		},
@@ -267,7 +267,7 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 			name: "order 2",
 			matrix: &Matrix{
 				Order: 2,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 3},
 					{9, -1},
 				},
@@ -278,7 +278,7 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 			name: "order 3 (without inverse)",
 			matrix: &Matrix{
 				Order: 3,
-				Data: [][]float64{
+				Data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -290,7 +290,7 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 			name: "order 10",
 			matrix: &Matrix{
 				Order: 10,
-				Data: [][]float64{
+				Data: [][]int{
 					{52, 37, 38, 88, 89, 9, 23, 95, 99, 16},
 					{59, 23, 35, 36, 43, 13, 26, 46, 47, 85},
 					{7, 23, 84, 24, 83, 100, 30, 72, 86, 93},
@@ -310,10 +310,10 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			gotDet, err := test.matrix.Determinant()
 			if err != nil {
-				t.Fatalf("Determinant(%v) returned an unexpered error; %v", test.matrix, err)
+				t.Fatalf("Determinant(%v) returned an unexpected error; %v", test.matrix, err)
 			}
 			if gotDet != test.wantDet {
-				t.Errorf("got incorrect determinant %.4f want %.4f", gotDet, test.wantDet)
+				t.Errorf("got incorrect determinant %df want %df", gotDet, test.wantDet)
 			}
 		})
 	}
@@ -325,8 +325,8 @@ func TestDeterminant_InvalidOrder(t *testing.T) {
 		name   string
 		matrix *Matrix
 	}{
-		{name: "order 0", matrix: &Matrix{Order: 0, Data: [][]float64{}}},
-		{name: "negative order", matrix: &Matrix{Order: -13, Data: [][]float64{}}},
+		{name: "order 0", matrix: &Matrix{Order: 0, Data: [][]int{}}},
+		{name: "negative order", matrix: &Matrix{Order: -13, Data: [][]int{}}},
 	}
 
 	for _, test := range tests {
