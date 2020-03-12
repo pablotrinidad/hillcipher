@@ -566,3 +566,101 @@ func TestCofactor_Error(t *testing.T) {
 		})
 	}
 }
+
+// TestTranspose verify method implementation
+func TestTranspose(t *testing.T) {
+	tests := []struct {
+		name              string
+		matrix, wantTrans *Matrix
+	}{
+		{
+			name:      "order 1",
+			matrix:    &Matrix{Order: 1, Data: [][]int{{1}}},
+			wantTrans: &Matrix{Order: 1, Data: [][]int{{1}}},
+		},
+		{
+			name: "order 2",
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 2},
+					{3, 4},
+				},
+			},
+			wantTrans: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 3},
+					{2, 4},
+				},
+			},
+		},
+		{
+			name: "order 3",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			wantTrans: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{5, 20, 4},
+					{15, 0, 26},
+					{18, 11, 0},
+				},
+			},
+		},
+		{
+			name: "another order 3",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{-286, 44, 520},
+					{468, -72, -70},
+					{165, 305, -300},
+				},
+			},
+			wantTrans: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{-286, 468, 165},
+					{44, -72, 305},
+					{520, -70, -300},
+				},
+			},
+		},
+		{
+			name: "order 4",
+			matrix: &Matrix{
+				Order: 4,
+				Data: [][]int{
+					{5, 15, 18, 1},
+					{20, 0, 11, 2},
+					{4, 26, 0, 3},
+					{4, 5, 6, 7},
+				},
+			},
+			wantTrans: &Matrix{
+				Order: 4,
+				Data: [][]int{
+					{5, 20, 4, 4},
+					{15, 0, 26, 5},
+					{18, 11, 0, 6},
+					{1, 2, 3, 7},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotTrans := test.matrix.Transpose()
+			if diff := cmp.Diff(gotTrans, test.wantTrans); diff != "" {
+				t.Errorf("Transpose(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, gotTrans, test.wantTrans, diff)
+			}
+		})
+	}
+}

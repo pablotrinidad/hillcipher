@@ -127,6 +127,18 @@ func (m *Matrix) Cofactor() (*Matrix, error) {
 	return cof, nil
 }
 
+// Transpose returns the transposed matrix
+func (m *Matrix) Transpose() *Matrix {
+	t := &Matrix{Order: m.Order, Data: make([][]int, m.Order)}
+	for i := 0; i < m.Order; i++ {
+		t.Data[i] = make([]int, m.Order)
+		for j := 0; j < m.Order; j++ {
+			t.Data[i][j] = m.Data[j][i]
+		}
+	}
+	return t
+}
+
 // Minor returns the co-factor matrix of the given matrix at p, q (row, col).
 func Minor(m *Matrix, p, q int) (*Matrix, error) {
 	if 0 > p || p >= m.Order || 0 > q || q >= m.Order {
