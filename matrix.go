@@ -56,8 +56,8 @@ func (m *Matrix) Determinant() (int, error) {
 	sign := 1
 	var det int
 	for i := 0; i < m.Order; i++ {
-		cofactor, _ := Minor(m, 0, i)
-		minor, _ := cofactor.Determinant()
+		subM, _ := Minor(m, 0, i)
+		minor, _ := subM.Determinant()
 		det += sign * m.Data[0][i] * minor
 		sign *= -1
 	}
@@ -85,6 +85,46 @@ func (m *Matrix) IsInvertibleMod(n int) bool {
 	}
 
 	return true
+}
+
+// InverseMod returns a the inverted square matrix mod n.
+func (m *Matrix) InverseMod(n int) (*Matrix, error) {
+	if !m.IsInvertibleMod(n) {
+		return nil, fmt.Errorf("matrix is not invertible mod %d", n)
+	}
+	det, err := m.Determinant()
+	if err != nil {
+		return nil, fmt.Errorf("failed to compute det(m); %v", err)
+	}
+	res := Residue(det, n)
+	_, err = ModularInverse(res, n)
+	if err != nil {
+		return nil, fmt.Errorf("failed to compute ModularInverse(%d, %d); %v", res, n, err)
+	}
+	// TODO: adjoint * inverse
+	return nil, nil
+}
+
+// Cofactor returns the cofactor matrix
+func (m *Matrix) Cofactor() (*Matrix, error) {
+	cof := &Matrix{Order: m.Order, Data: make([][]int, m.Order)}
+	for i := 0; i < m.Order; i++ {
+		row := make([]int, m.Order)
+		for j := 0; j < m.Order; j++ {
+			minor, _ := Minor(m, i, j) // Error is neglected since row & col are always in bound
+			detM, err := minor.Determinant()
+			if err != nil {
+				return nil, fmt.Errorf("failed to compute det(m) for minor at row:%d col:%d\n%s;%v", i, j, m, err)
+			}
+			if (i+j)%2 == 0 {
+				row[j] = detM
+			} else {
+				row[j] = detM * -1
+			}
+		}
+		cof.Data[i] = row
+	}
+	return cof, nil
 }
 
 // Minor returns the co-factor matrix of the given matrix at p, q (row, col).

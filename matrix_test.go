@@ -453,3 +453,116 @@ func TestIsInvertibleMod(t *testing.T) {
 		})
 	}
 }
+
+// TestCofactor verifies correct definition of cofactor
+func TestCofactor(t *testing.T) {
+	tests := []struct {
+		name            string
+		matrix, wantCof *Matrix
+	}{
+		{
+			name: "order 2",
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 3},
+					{9, 1},
+				},
+			},
+			wantCof: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, -9},
+					{-3, 1},
+				},
+			},
+		},
+		{
+			name: "another order 2",
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{-23, 71},
+					{92, 86},
+				},
+			},
+			wantCof: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{86, -92},
+					{-71, -23},
+				},
+			},
+		},
+		{
+			name: "order 3",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{0, 9, 3},
+					{2, 0, 4},
+					{3, 7, 0},
+				},
+			},
+			wantCof: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{-28, 12, 14},
+					{21, -9, 27},
+					{36, 6, -18},
+				},
+			},
+		},
+		{
+			name: "another order 3",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			wantCof: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{-286, 44, 520},
+					{468, -72, -70},
+					{165, 305, -300},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cof, err := test.matrix.Cofactor()
+			if err != nil {
+				t.Fatalf("Cofactor(m) returned unexpected error; %v\n%s", err, test.matrix)
+			}
+			if diff := cmp.Diff(cof, test.wantCof); diff != "" {
+				t.Errorf("Cofactor(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, cof, test.wantCof, diff)
+			}
+		})
+	}
+}
+
+// TestCofactor_Error verifies error check in cofactor
+func TestCofactor_Error(t *testing.T) {
+	tests := []struct {
+		name            string
+		matrix, wantCof *Matrix
+	}{
+		{
+			name:   "order 1",
+			matrix: &Matrix{Order: 1, Data: [][]int{{1}}},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := test.matrix.Cofactor(); err == nil {
+				t.Fatalf("Cofactor(\n%s) returned non-nil error, want error; ", test.matrix)
+
+			}
+		})
+	}
+}
