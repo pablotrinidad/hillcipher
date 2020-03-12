@@ -92,15 +92,9 @@ func (m *Matrix) InverseMod(n int) (*Matrix, error) {
 	if !m.IsInvertibleMod(n) {
 		return nil, fmt.Errorf("matrix is not invertible mod %d", n)
 	}
-	det, err := m.Determinant()
-	if err != nil {
-		return nil, fmt.Errorf("failed to compute det(\n%s\n); %v", m, err)
-	}
+	det, _ := m.Determinant() // Neglect error since its checked by IsInvertibleMod
 	res := Residue(det, n)
-	inverse, err := ModularInverse(res, n)
-	if err != nil {
-		return nil, fmt.Errorf("failed to compute ModularInverse(\n%d\n, %d); %v", res, n, err)
-	}
+	inverse, _ := ModularInverse(res, n) // Neglect error since its checked by IsInvertibleMod
 	adj, err := m.Adjoint()
 	if err != nil {
 		return nil, fmt.Errorf("failed to compute Adj(\n%s\n); %v", m, err)
