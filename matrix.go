@@ -105,6 +105,15 @@ func (m *Matrix) InverseMod(n int) (*Matrix, error) {
 	return nil, nil
 }
 
+// Adjoint returns the adjoint matrix
+func (m *Matrix) Adjoint() (*Matrix, error) {
+	cof, err := m.Cofactor()
+	if err != nil {
+		return nil, fmt.Errorf("failed to compute cofactor matrix for \n%s; %v", m, err)
+	}
+	return cof.Transpose(), nil
+}
+
 // Cofactor returns the cofactor matrix
 func (m *Matrix) Cofactor() (*Matrix, error) {
 	cof := &Matrix{Order: m.Order, Data: make([][]int, m.Order)}

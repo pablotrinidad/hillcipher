@@ -549,8 +549,8 @@ func TestCofactor(t *testing.T) {
 // TestCofactor_Error verifies error check in cofactor
 func TestCofactor_Error(t *testing.T) {
 	tests := []struct {
-		name            string
-		matrix, wantCof *Matrix
+		name   string
+		matrix *Matrix
 	}{
 		{
 			name:   "order 1",
@@ -660,6 +660,104 @@ func TestTranspose(t *testing.T) {
 			gotTrans := test.matrix.Transpose()
 			if diff := cmp.Diff(gotTrans, test.wantTrans); diff != "" {
 				t.Errorf("Transpose(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, gotTrans, test.wantTrans, diff)
+			}
+		})
+	}
+}
+
+// TestAdjoint verify method implementation
+func TestAdjoint(t *testing.T) {
+	tests := []struct {
+		name               string
+		matrix, wantMatrix *Matrix
+	}{
+		{
+			name: "order 2",
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 2},
+					{3, 4},
+				},
+			},
+			wantMatrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{4, -2},
+					{-3, 1},
+				},
+			},
+		},
+		{
+			name: "order 3",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			wantMatrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{-286, 468, 165},
+					{44, -72, 305},
+					{520, -70, -300},
+				},
+			},
+		},
+		{
+			name: "order 4",
+			matrix: &Matrix{
+				Order: 4,
+				Data: [][]int{
+					{5, 15, 18, 1},
+					{20, 0, 11, 2},
+					{4, 26, 0, 3},
+					{4, 5, 6, 7},
+				},
+			},
+			wantMatrix: &Matrix{
+				Order: 4,
+				Data: [][]int{
+					{-1525, 3120, 1100, -1145},
+					{488, -354, 1975, -815},
+					{3172, -511, -1930, 520},
+					{-2196, -1092, -385, 8590},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotAdj, err := test.matrix.Adjoint()
+			if err != nil {
+				t.Fatalf("Adjoint(m) returned unexpected error; %v\n%s", err, test.matrix)
+			}
+			if diff := cmp.Diff(gotAdj, test.wantMatrix); diff != "" {
+				t.Errorf("Adjoint(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, gotAdj, test.wantMatrix, diff)
+			}
+		})
+	}
+}
+
+// TestAdjoint_Error verifies error check in Adjoint
+func TestAdjoint_Error(t *testing.T) {
+	tests := []struct {
+		name   string
+		matrix *Matrix
+	}{
+		{
+			name:   "order 1",
+			matrix: &Matrix{Order: 1, Data: [][]int{{1}}},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := test.matrix.Adjoint(); err == nil {
+				t.Fatalf("Adjoint(\n%s) returned non-nil error, want error; ", test.matrix)
+
 			}
 		})
 	}
