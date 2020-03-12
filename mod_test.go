@@ -32,19 +32,19 @@ func TestEGCD(t *testing.T) {
 	}{
 		{
 			a: 150, b: 180,
-			g: 30, x: -1, y: 1,
+			g: 30, x: 1, y: -1,
 		},
 		{
 			a: 18, b: 348,
-			g: 6, x: -19, y: 1,
+			g: 6, x: 1, y: -19,
 		},
 		{
 			a: 24, b: 60,
-			g: 12, x: -2, y: 1,
+			g: 12, x: 1, y: -2,
 		},
 		{
 			a: 148, b: 772,
-			g: 4, x: -73, y: 14,
+			g: 4, x: 14, y: -73,
 		},
 	}
 	for _, test := range tests {
@@ -77,5 +77,126 @@ func TestIsModUnit(t *testing.T) {
 				t.Errorf("%s = %v, want %v", name, r, test.isUnit)
 			}
 		})
+	}
+}
+
+// TestModularInverse verify the definition of modular inverse
+func TestModularInverse(t *testing.T) {
+	tests := []struct {
+		input map[int]int // map[unit]inverse
+		mod   int
+	}{
+		{
+			input: map[int]int{
+				1:  1,
+				3:  9,
+				5:  21,
+				7:  15,
+				9:  3,
+				11: 19,
+				15: 7,
+				17: 23,
+				19: 11,
+				21: 5,
+				23: 17,
+				25: 25,
+			},
+			mod: 26,
+		},
+		{
+			input: map[int]int{
+				1:  1,
+				3:  27,
+				7:  23,
+				9:  9,
+				11: 51,
+				13: 37,
+				17: 33,
+				19: 59,
+				21: 61,
+				23: 7,
+				27: 3,
+				29: 69,
+			},
+			mod: 80,
+		},
+		{
+			input: map[int]int{
+				1:  1,
+				5:  5,
+				7:  7,
+				11: 11,
+			},
+			mod: 12,
+		},
+		{
+			input: map[int]int{
+				1:  1,
+				2:  14,
+				4:  7,
+				5:  11,
+				7:  4,
+				8:  17,
+				10: 19,
+				11: 5,
+				13: 25,
+				14: 2,
+				16: 22,
+				17: 8,
+				19: 10,
+				20: 23,
+				22: 16,
+				23: 20,
+				25: 13,
+				26: 26,
+			},
+			mod: 27,
+		},
+		{input: map[int]int{1: 0}, mod: 1},
+	}
+	for _, test := range tests {
+		for u, i := range test.input {
+			name := fmt.Sprintf("%x^-1 (mod %d)", u, test.mod)
+			t.Run(name, func(t *testing.T) {
+				inverse, err := ModularInverse(u, test.mod)
+				if err != nil {
+					t.Fatalf("ModularInverse(%d, %d) returned unexpected error; %v", u, test.mod, err)
+				}
+				if inverse != i {
+					t.Errorf("ModularInverse(%d, %d) = %d, want %d", u, test.mod, inverse, i)
+				}
+			})
+		}
+	}
+}
+
+// TestModularInverse_Error verify definition rejects pairs that aren't coprimes
+func TestModularInverse_Error(t *testing.T) {
+	tests := []struct {
+		factors []int
+		mod     int
+	}{
+		{
+			factors: []int{2, 4, 6, 8, 10, 12, 13, 14, 16, 18, 20, 22},
+			mod:     26,
+		},
+		{
+			factors: []int{2, 3, 4, 6, 8, 9, 10},
+			mod:     12,
+		},
+		{
+			factors: []int{3, 6, 9, 12, 15, 18, 21, 24},
+			mod:     27,
+		},
+	}
+	for _, test := range tests {
+		for _, f := range test.factors {
+			name := fmt.Sprintf("%d^-1 (mod %d)", f, test.mod)
+			t.Run(name, func(t *testing.T) {
+				if _, err := ModularInverse(f, test.mod); err == nil {
+					t.Fatalf("ModularInverse(%d, %d) did not fail, should've failed", f, test.mod)
+				}
+			})
+		}
 	}
 }
