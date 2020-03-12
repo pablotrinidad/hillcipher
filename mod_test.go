@@ -11,6 +11,7 @@ func TestResidue(t *testing.T) {
 		a, mod, wantResidue int
 	}{
 		{a: 87, mod: 26, wantResidue: 9},
+		{a: 8590, mod: 27, wantResidue: 4},
 		{a: -38, mod: 26, wantResidue: 14},
 		{a: -26, mod: 26, wantResidue: 0},
 	}

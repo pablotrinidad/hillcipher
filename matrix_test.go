@@ -337,3 +337,119 @@ func TestDeterminant_InvalidOrder(t *testing.T) {
 		})
 	}
 }
+
+// TestIsInvertibleMod
+func TestIsInvertibleMod(t *testing.T) {
+	tests := []struct {
+		name         string
+		matrix       *Matrix
+		mod          int
+		isInvertible bool
+	}{
+		{name: "order 0 not invertible mod 10", matrix: &Matrix{}, isInvertible: false, mod: 10},
+		{
+			name:         "order 1 invertible mod 10",
+			matrix:       &Matrix{Order: 1, Data: [][]int{{1}}},
+			isInvertible: true,
+			mod:          10,
+		},
+		{
+			name:         "order 1 not invertible mod 10",
+			matrix:       &Matrix{Order: 1, Data: [][]int{{11}}},
+			isInvertible: false,
+			mod:          10,
+		},
+		{
+			name: "order 3 invertible mod 26",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{6, 24, 1},
+					{13, 16, 10},
+					{20, 17, 15},
+				},
+			},
+			isInvertible: true,
+			mod:          26,
+		},
+		{
+			name: "order 3 invertible mod 27",
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			isInvertible: true,
+			mod:          27,
+		},
+		{
+			name: "order 4 invertible mod 27",
+			matrix: &Matrix{
+				Order: 4,
+				Data: [][]int{
+					{6, 24, 1, 15},
+					{13, 16, 10, 23},
+					{20, 17, 15, 23},
+					{1, 2, 9, 13},
+				},
+			},
+			isInvertible: true,
+			mod:          27,
+		},
+		{
+			name: "order 5 invertible mod 49",
+			matrix: &Matrix{
+				Order: 5,
+				Data: [][]int{
+					{6, 24, 44, 1, 15},
+					{13, 16, 48, 10, 23},
+					{20, 20, 17, 15, 23},
+					{1, 2, 9, 13, 0},
+					{48, 47, 46, 45, 44},
+				},
+			},
+			isInvertible: true,
+			mod:          49,
+		},
+		{
+			name: "same order 5 not invertible mod 50",
+			matrix: &Matrix{
+				Order: 5,
+				Data: [][]int{
+					{6, 24, 44, 1, 15},
+					{13, 16, 48, 10, 23},
+					{20, 20, 17, 15, 23},
+					{1, 2, 9, 13, 0},
+					{48, 47, 46, 45, 44},
+				},
+			},
+			isInvertible: false,
+			mod:          50,
+		},
+		{
+			name: "same order 5 but invertible mod 51",
+			matrix: &Matrix{
+				Order: 5,
+				Data: [][]int{
+					{6, 24, 44, 1, 15},
+					{13, 16, 48, 10, 23},
+					{20, 20, 17, 15, 23},
+					{1, 2, 9, 13, 0},
+					{48, 47, 46, 45, 44},
+				},
+			},
+			isInvertible: true,
+			mod:          51,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if inv := test.matrix.IsInvertibleMod(test.mod); inv != test.isInvertible {
+				t.Errorf("IsInvertibleMod(%d) = %v, want %v for matrix\n%s", test.mod, inv, test.isInvertible, test.matrix)
+			}
+		})
+	}
+}

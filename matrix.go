@@ -70,10 +70,18 @@ func (m *Matrix) Determinant() (int, error) {
 func (m *Matrix) IsInvertibleMod(n int) bool {
 	for _, col := range m.Data {
 		for _, x := range col {
-			if x < 0 || x >= (n) {
+			if x < 0 || x >= n {
 				return false
 			}
 		}
+	}
+	det, err := m.Determinant()
+	if err != nil {
+		return false
+	}
+	res := Residue(det, n)
+	if _, err := ModularInverse(res, n); err != nil {
+		return false
 	}
 
 	return true
