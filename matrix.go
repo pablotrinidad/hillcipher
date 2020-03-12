@@ -94,15 +94,23 @@ func (m *Matrix) InverseMod(n int) (*Matrix, error) {
 	}
 	det, err := m.Determinant()
 	if err != nil {
-		return nil, fmt.Errorf("failed to compute det(m); %v", err)
+		return nil, fmt.Errorf("failed to compute det(\n%s\n); %v", m, err)
 	}
 	res := Residue(det, n)
-	_, err = ModularInverse(res, n)
+	inverse, err := ModularInverse(res, n)
 	if err != nil {
-		return nil, fmt.Errorf("failed to compute ModularInverse(%d, %d); %v", res, n, err)
+		return nil, fmt.Errorf("failed to compute ModularInverse(\n%d\n, %d); %v", res, n, err)
 	}
-	// TODO: adjoint * inverse
-	return nil, nil
+	adj, err := m.Adjoint()
+	if err != nil {
+		return nil, fmt.Errorf("failed to compute Adj(\n%s\n); %v", m, err)
+	}
+	for i := range adj.Data {
+		for j := range adj.Data {
+			adj.Data[i][j] = Residue(adj.Data[i][j]*inverse, n)
+		}
+	}
+	return adj, nil
 }
 
 // Adjoint returns the adjoint matrix

@@ -762,3 +762,127 @@ func TestAdjoint_Error(t *testing.T) {
 		})
 	}
 }
+
+// TestInverseMod verify method implementation
+func TestInverseMod(t *testing.T) {
+	tests := []struct {
+		name               string
+		mod                int
+		matrix, wantMatrix *Matrix
+	}{
+		{
+			name: "order 2 mod 12",
+			mod:  12,
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 5},
+					{3, 4},
+				},
+			},
+			wantMatrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{4, 7},
+					{9, 1},
+				},
+			},
+		},
+		{
+			name: "order 3 mod 26",
+			mod:  26,
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{6, 24, 1},
+					{13, 16, 10},
+					{20, 17, 15},
+				},
+			},
+			wantMatrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{8, 5, 10},
+					{21, 8, 21},
+					{21, 12, 8},
+				},
+			},
+		},
+		{
+			name: "order 3 mod 27",
+			mod:  27,
+			matrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			wantMatrix: &Matrix{
+				Order: 3,
+				Data: [][]int{
+					{23, 9, 21},
+					{11, 9, 2},
+					{22, 23, 6},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotInverse, err := test.matrix.InverseMod(test.mod)
+			if err != nil {
+				t.Fatalf("InverseMod(\n%s\n, %d) returned unexpected error; %v", test.matrix, test.mod, err)
+			}
+			if diff := cmp.Diff(gotInverse, test.wantMatrix); diff != "" {
+				t.Errorf("InverseMod(\n%s\n, %d) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, test.mod, gotInverse, test.wantMatrix, diff)
+			}
+		})
+	}
+}
+
+// TestInverseMod_Error verifies error check in InverseMod
+func TestInverseMod_Error(t *testing.T) {
+	tests := []struct {
+		name   string
+		matrix *Matrix
+		mod    int
+	}{
+		{
+			name:   "order 1",
+			matrix: &Matrix{Order: 1, Data: [][]int{{1}}},
+			mod:    12,
+		},
+		{
+			name: "data out of bound",
+			mod:  12,
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 2},
+					{12, 10},
+				},
+			},
+		},
+		{
+			name: "order 2 without inverse",
+			mod:  12,
+			matrix: &Matrix{
+				Order: 2,
+				Data: [][]int{
+					{1, 2},
+					{3, 4},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := test.matrix.InverseMod(test.mod); err == nil {
+				t.Fatalf("InverseMod(\n%s\n, %d) returned non-nil error, want error; ", test.matrix, test.mod)
+
+			}
+		})
+	}
+}
