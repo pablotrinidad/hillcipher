@@ -73,6 +73,9 @@ func (m *Matrix) Determinant() (int, error) {
 // invertible modulo n if and only if the residue of det(A) modulo n has an inverse modulo m. Also,
 // A is invertible modulo n if m and the residue of det(A) modulo n have no common prime factors.
 func (m *Matrix) IsInvertibleMod(n int) bool {
+	if n < 2 {
+		return false
+	}
 	for _, col := range m.data {
 		for _, x := range col {
 			if x < 0 || x >= n {
@@ -94,6 +97,9 @@ func (m *Matrix) IsInvertibleMod(n int) bool {
 
 // InverseMod returns a the inverted square matrix mod n.
 func (m *Matrix) InverseMod(n int) (*Matrix, error) {
+	if n < 2 {
+		return nil, fmt.Errorf("got modulo < 2")
+	}
 	if !m.IsInvertibleMod(n) {
 		return nil, fmt.Errorf("matrix is not invertible mod %d", n)
 	}
@@ -158,7 +164,7 @@ func (m *Matrix) Transpose() *Matrix {
 // Minor returns the co-factor matrix of the given matrix at p, q (row, col).
 func Minor(m *Matrix, p, q int) (*Matrix, error) {
 	if 0 > p || p >= m.order || 0 > q || q >= m.order {
-		return nil, fmt.Errorf("received row and/or col out of bound")
+		return nil, fmt.Errorf("got row and/or col out of bound")
 	}
 	if m.order <= 1 {
 		return &Matrix{}, nil
@@ -179,10 +185,20 @@ func Minor(m *Matrix, p, q int) (*Matrix, error) {
 	return r, nil
 }
 
-// By that same reasoning, since the cipher used would have to be a
-// matrix modulo 26, that inverse cipher would have to be the inverse
-// of that matrix modulo 26.
-
-// If m is a positive interger, then a square matrix A with entries in Zm is said to be
-// "INVERTIBLE MODULO M" if there is a matrix B with entries in Zm such that
-// AB = BA = I (mod m)
+// VectorProductMod returns the matrix-vector product
+func (m *Matrix) VectorProductMod(mod int, vector ...int) ([]int, error) {
+	if len(vector) != m.order {
+		return nil, fmt.Errorf("got invalid vector size %d, want %d", len(vector), m.order)
+	}
+	if mod < 2 {
+		return nil, fmt.Errorf("got modulo < 2")
+	}
+	vp := make([]int, m.order)
+	for i := 0; i < m.order; i++ {
+		for j := 0; j < m.order; j++ {
+			vp[i] += m.data[i][j] * vector[j]
+		}
+		vp[i] = vp[i] % mod
+	}
+	return vp, nil
+}

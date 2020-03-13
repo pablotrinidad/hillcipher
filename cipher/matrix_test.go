@@ -892,3 +892,52 @@ func TestInverseMod_Error(t *testing.T) {
 		})
 	}
 }
+
+// TestVectorProductMod verifies implementation of matrix-vector multiplication
+func TestVectorProductMod(t *testing.T) {
+	tests := []struct {
+		name                   string
+		matrix                 *Matrix
+		mod                    int
+		multVector, wantVector []int
+	}{
+		{
+			name: "order 2 mult 0",
+			mod:  12,
+			matrix: &Matrix{
+				order: 2,
+				data: [][]int{
+					{1, 2},
+					{3, 4},
+				},
+			},
+			multVector: []int{0, 0},
+			wantVector: []int{0, 0},
+		},
+		{
+			name: "order 3",
+			mod:  27,
+			matrix: &Matrix{
+				order: 3,
+				data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			multVector: []int{2, 15, 13},
+			wantVector: []int{10, 21, 20},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotVector, err := test.matrix.VectorProductMod(test.mod, test.multVector...)
+			if err != nil {
+				t.Fatalf("VectorProductMod(%d, %v) return unexpected error; %v", test.mod, test.multVector, err)
+			}
+			if diff := cmp.Diff(test.wantVector, gotVector); diff != "" {
+				t.Errorf("VectorProductMod(%d, %v) = %v, want %v: diff want -> got %s", test.mod, test.multVector, gotVector, test.wantVector, diff)
+			}
+		})
+	}
+}
