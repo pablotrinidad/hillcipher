@@ -18,15 +18,15 @@ func TestNewKey(t *testing.T) {
 		{
 			name: "order 2 mod 2",
 			mod:  2, data: []int{1, 0, 1, 1},
-			wantKey: &Key{Order: 2, Data: [][]int{{1, 0}, {1, 1}}},
+			wantKey: &Key{order: 2, data: [][]int{{1, 0}, {1, 1}}},
 		},
 		{
 			name: "order 3 mod 27",
 			mod:  27,
 			data: []int{5, 15, 18, 20, 0, 11, 4, 26, 0},
 			wantKey: &Key{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
@@ -34,13 +34,14 @@ func TestNewKey(t *testing.T) {
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Key{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gotKey, err := NewKey(test.data, test.mod)
 			if err != nil {
 				t.Fatalf("NewKey(%v, %d) returned unexpected error; %v", test.data, test.mod, err)
 			}
-			if diff := cmp.Diff(test.wantKey, gotKey); diff != "" {
+			if diff := cmp.Diff(test.wantKey, gotKey, unxOpt); diff != "" {
 				t.Errorf("NewKey(%v, %d)=\n%s, want \n%s: diff want -> got\n%s", test.data, test.mod, gotKey, test.wantKey, diff)
 			}
 		})
@@ -83,8 +84,8 @@ func TestKeyString(t *testing.T) {
 		{
 			name: "order 3",
 			key: &Key{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},

@@ -7,14 +7,14 @@ import (
 
 // Matrix represents square matrices
 type Matrix struct {
-	Order int
-	Data  [][]int
+	order int
+	data  [][]int
 }
 
 // String implements Stringer interface
 func (m Matrix) String() string {
 	var b strings.Builder
-	for _, row := range m.Data {
+	for _, row := range m.data {
 		for i, item := range row {
 			if i == 0 {
 				b.WriteString("|")
@@ -32,14 +32,14 @@ func NewMatrix(order int, data []int) (*Matrix, error) {
 	if len(data) != order*order {
 		return nil, fmt.Errorf("failed to build square matrix, got invalid data size %d, wantMatrix %d", len(data), order*order)
 	}
-	m := &Matrix{Order: order}
-	m.Data = make([][]int, order)
+	m := &Matrix{order: order}
+	m.data = make([][]int, order)
 	for i := 0; i < order; i++ {
 		row := make([]int, order)
 		for j := 0; j < order; j++ {
 			row[j] = data[(i*order)+j]
 		}
-		m.Data[i] = row
+		m.data[i] = row
 	}
 	return m, nil
 }
@@ -47,18 +47,18 @@ func NewMatrix(order int, data []int) (*Matrix, error) {
 // Determinant returns the matrix determinant. This algorithm is extremely slow O(n!) since it
 // builds on the naive approach. Implement LU decomposition for better performance O(n^3).
 func (m *Matrix) Determinant() (int, error) {
-	if m.Order < 1 {
+	if m.order < 1 {
 		return 0, fmt.Errorf("determinant is undefined for order < 1")
 	}
-	if m.Order == 1 {
-		return m.Data[0][0], nil
+	if m.order == 1 {
+		return m.data[0][0], nil
 	}
 	sign := 1
 	var det int
-	for i := 0; i < m.Order; i++ {
+	for i := 0; i < m.order; i++ {
 		subM, _ := Minor(m, 0, i)
 		minor, _ := subM.Determinant()
-		det += sign * m.Data[0][i] * minor
+		det += sign * m.data[0][i] * minor
 		sign *= -1
 	}
 	return det, nil
@@ -68,7 +68,7 @@ func (m *Matrix) Determinant() (int, error) {
 // invertible modulo n if and only if the residue of det(A) modulo n has an inverse modulo m. Also,
 // A is invertible modulo n if m and the residue of det(A) modulo n have no common prime factors.
 func (m *Matrix) IsInvertibleMod(n int) bool {
-	for _, col := range m.Data {
+	for _, col := range m.data {
 		for _, x := range col {
 			if x < 0 || x >= n {
 				return false
@@ -99,9 +99,9 @@ func (m *Matrix) InverseMod(n int) (*Matrix, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to compute Adj(\n%s\n); %v", m, err)
 	}
-	for i := range adj.Data {
-		for j := range adj.Data {
-			adj.Data[i][j] = Residue(adj.Data[i][j]*inverse, n)
+	for i := range adj.data {
+		for j := range adj.data {
+			adj.data[i][j] = Residue(adj.data[i][j]*inverse, n)
 		}
 	}
 	return adj, nil
@@ -118,10 +118,10 @@ func (m *Matrix) Adjoint() (*Matrix, error) {
 
 // Cofactor returns the cofactor matrix
 func (m *Matrix) Cofactor() (*Matrix, error) {
-	cof := &Matrix{Order: m.Order, Data: make([][]int, m.Order)}
-	for i := 0; i < m.Order; i++ {
-		row := make([]int, m.Order)
-		for j := 0; j < m.Order; j++ {
+	cof := &Matrix{order: m.order, data: make([][]int, m.order)}
+	for i := 0; i < m.order; i++ {
+		row := make([]int, m.order)
+		for j := 0; j < m.order; j++ {
 			minor, _ := Minor(m, i, j) // Error is neglected since row & col are always in bound
 			detM, err := minor.Determinant()
 			if err != nil {
@@ -133,18 +133,18 @@ func (m *Matrix) Cofactor() (*Matrix, error) {
 				row[j] = detM * -1
 			}
 		}
-		cof.Data[i] = row
+		cof.data[i] = row
 	}
 	return cof, nil
 }
 
 // Transpose returns the transposed matrix
 func (m *Matrix) Transpose() *Matrix {
-	t := &Matrix{Order: m.Order, Data: make([][]int, m.Order)}
-	for i := 0; i < m.Order; i++ {
-		t.Data[i] = make([]int, m.Order)
-		for j := 0; j < m.Order; j++ {
-			t.Data[i][j] = m.Data[j][i]
+	t := &Matrix{order: m.order, data: make([][]int, m.order)}
+	for i := 0; i < m.order; i++ {
+		t.data[i] = make([]int, m.order)
+		for j := 0; j < m.order; j++ {
+			t.data[i][j] = m.data[j][i]
 		}
 	}
 	return t
@@ -152,23 +152,23 @@ func (m *Matrix) Transpose() *Matrix {
 
 // Minor returns the co-factor matrix of the given matrix at p, q (row, col).
 func Minor(m *Matrix, p, q int) (*Matrix, error) {
-	if 0 > p || p >= m.Order || 0 > q || q >= m.Order {
+	if 0 > p || p >= m.order || 0 > q || q >= m.order {
 		return nil, fmt.Errorf("received row and/or col out of bound")
 	}
-	if m.Order <= 1 {
+	if m.order <= 1 {
 		return &Matrix{}, nil
 	}
-	r := &Matrix{Order: m.Order - 1}
-	r.Data = make([][]int, 0, r.Order)
-	for row := 0; row < m.Order; row++ {
-		tmp := make([]int, 0, r.Order)
-		for col := 0; col < m.Order; col++ {
+	r := &Matrix{order: m.order - 1}
+	r.data = make([][]int, 0, r.order)
+	for row := 0; row < m.order; row++ {
+		tmp := make([]int, 0, r.order)
+		for col := 0; col < m.order; col++ {
 			if row != p && col != q {
-				tmp = append(tmp, m.Data[row][col])
+				tmp = append(tmp, m.data[row][col])
 			}
 		}
 		if row != p {
-			r.Data = append(r.Data, tmp)
+			r.data = append(r.data, tmp)
 		}
 	}
 	return r, nil

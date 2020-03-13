@@ -40,15 +40,15 @@ func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
 			name:       "order 1",
 			order:      1,
 			input:      []int{-99999},
-			wantMatrix: &Matrix{Order: 1, Data: [][]int{{-99999}}},
+			wantMatrix: &Matrix{order: 1, data: [][]int{{-99999}}},
 		},
 		{
 			name:  "order 2",
 			order: 2,
 			input: []int{12, 34, 56, 78},
 			wantMatrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{12, 34},
 					{56, 78},
 				},
@@ -70,8 +70,8 @@ func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
 				80, 49, 18, 67, 47, 22, 86, 13, 2, 33,
 			},
 			wantMatrix: &Matrix{
-				Order: 10,
-				Data: [][]int{
+				order: 10,
+				data: [][]int{
 					{52, 37, 38, 88, 89, 9, 23, 95, 99, 16},
 					{59, 23, 35, 36, 43, 13, 26, 46, 47, 85},
 					{7, 23, 84, 24, 83, 100, 30, 72, 86, 93},
@@ -86,13 +86,14 @@ func TestNewMatrix_CorrectMatrixCreation(t *testing.T) {
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Matrix{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gotMatrix, err := NewMatrix(test.order, test.input)
 			if err != nil {
 				t.Errorf("NewMatrix(%v, %v) returned unexpected error; %v.", test.order, test.input, err)
 			}
-			if diff := cmp.Diff(test.wantMatrix, gotMatrix); diff != "" {
+			if diff := cmp.Diff(test.wantMatrix, gotMatrix, unxOpt); diff != "" {
 				t.Errorf("NewMatrix(%v, %v) = %v; want %v; diff: want -> got %s", test.order, test.input, gotMatrix, test.wantMatrix, diff)
 			}
 		})
@@ -109,27 +110,27 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 	}{
 		{
 			name:   "order 1",
-			matrix: &Matrix{Order: 1},
+			matrix: &Matrix{order: 1},
 			p:      0, q: 0,
 			wantMatrix: &Matrix{},
 		},
 		{
 			name: "order 2",
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 3},
 					{9, -1},
 				},
 			},
 			p: 0, q: 0,
-			wantMatrix: &Matrix{Order: 1, Data: [][]int{{-1}}},
+			wantMatrix: &Matrix{order: 1, data: [][]int{{-1}}},
 		},
 		{
 			name: "order 3 middle cross",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -137,8 +138,8 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 			},
 			p: 1, q: 1,
 			wantMatrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 3},
 					{7, 9},
 				},
@@ -147,8 +148,8 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 		{
 			name: "order 3 edge cross",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -156,21 +157,22 @@ func TestMinor_ReturnsCorrectMatrix(t *testing.T) {
 			},
 			p: 0, q: 0,
 			wantMatrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{5, 6},
 					{8, 9},
 				},
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Matrix{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gotMatrix, err := Minor(test.matrix, test.p, test.q)
 			if err != nil {
 				t.Fatalf("Minor(%v, %d, %d) returned unexpected error; %v", test.matrix, test.p, test.q, err)
 			}
-			if diff := cmp.Diff(test.wantMatrix, gotMatrix); diff != "" {
+			if diff := cmp.Diff(test.wantMatrix, gotMatrix, unxOpt); diff != "" {
 				t.Errorf("Minor(%v, %d, %d) = %v; want %v; diff: want -> got %s", test.matrix, test.p, test.q, gotMatrix, test.wantMatrix, diff)
 			}
 		})
@@ -212,24 +214,24 @@ func TestString_ReturnsCorrectValue(t *testing.T) {
 		{
 			name: "empty matrix",
 			matrix: &Matrix{
-				Order: 0,
-				Data:  [][]int{},
+				order: 0,
+				data:  [][]int{},
 			},
 			wantRep: "",
 		},
 		{
 			name: "order 1",
 			matrix: &Matrix{
-				Order: 1,
-				Data:  [][]int{{1}},
+				order: 1,
+				data:  [][]int{{1}},
 			},
 			wantRep: "|\t1\t|\n",
 		},
 		{
 			name: "order 3",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -258,16 +260,16 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 		{
 			name: "order 1",
 			matrix: &Matrix{
-				Order: 1,
-				Data:  [][]int{{1}},
+				order: 1,
+				data:  [][]int{{1}},
 			},
 			wantDet: 1.0,
 		},
 		{
 			name: "order 2",
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 3},
 					{9, -1},
 				},
@@ -277,8 +279,8 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 		{
 			name: "order 3 (without inverse)",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{1, 2, 3},
 					{4, 5, 6},
 					{7, 8, 9},
@@ -289,8 +291,8 @@ func TestDeterminant_CorrectResult(t *testing.T) {
 		{
 			name: "order 10",
 			matrix: &Matrix{
-				Order: 10,
-				Data: [][]int{
+				order: 10,
+				data: [][]int{
 					{52, 37, 38, 88, 89, 9, 23, 95, 99, 16},
 					{59, 23, 35, 36, 43, 13, 26, 46, 47, 85},
 					{7, 23, 84, 24, 83, 100, 30, 72, 86, 93},
@@ -325,8 +327,8 @@ func TestDeterminant_InvalidOrder(t *testing.T) {
 		name   string
 		matrix *Matrix
 	}{
-		{name: "order 0", matrix: &Matrix{Order: 0, Data: [][]int{}}},
-		{name: "negative order", matrix: &Matrix{Order: -13, Data: [][]int{}}},
+		{name: "order 0", matrix: &Matrix{order: 0, data: [][]int{}}},
+		{name: "negative order", matrix: &Matrix{order: -13, data: [][]int{}}},
 	}
 
 	for _, test := range tests {
@@ -349,21 +351,21 @@ func TestIsInvertibleMod(t *testing.T) {
 		{name: "order 0 not invertible mod 10", matrix: &Matrix{}, isInvertible: false, mod: 10},
 		{
 			name:         "order 1 invertible mod 10",
-			matrix:       &Matrix{Order: 1, Data: [][]int{{1}}},
+			matrix:       &Matrix{order: 1, data: [][]int{{1}}},
 			isInvertible: true,
 			mod:          10,
 		},
 		{
 			name:         "order 1 not invertible mod 10",
-			matrix:       &Matrix{Order: 1, Data: [][]int{{11}}},
+			matrix:       &Matrix{order: 1, data: [][]int{{11}}},
 			isInvertible: false,
 			mod:          10,
 		},
 		{
 			name: "order 3 invertible mod 26",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{6, 24, 1},
 					{13, 16, 10},
 					{20, 17, 15},
@@ -375,8 +377,8 @@ func TestIsInvertibleMod(t *testing.T) {
 		{
 			name: "order 3 invertible mod 27",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
@@ -388,8 +390,8 @@ func TestIsInvertibleMod(t *testing.T) {
 		{
 			name: "order 4 invertible mod 27",
 			matrix: &Matrix{
-				Order: 4,
-				Data: [][]int{
+				order: 4,
+				data: [][]int{
 					{6, 24, 1, 15},
 					{13, 16, 10, 23},
 					{20, 17, 15, 23},
@@ -402,8 +404,8 @@ func TestIsInvertibleMod(t *testing.T) {
 		{
 			name: "order 5 invertible mod 49",
 			matrix: &Matrix{
-				Order: 5,
-				Data: [][]int{
+				order: 5,
+				data: [][]int{
 					{6, 24, 44, 1, 15},
 					{13, 16, 48, 10, 23},
 					{20, 20, 17, 15, 23},
@@ -417,8 +419,8 @@ func TestIsInvertibleMod(t *testing.T) {
 		{
 			name: "same order 5 not invertible mod 50",
 			matrix: &Matrix{
-				Order: 5,
-				Data: [][]int{
+				order: 5,
+				data: [][]int{
 					{6, 24, 44, 1, 15},
 					{13, 16, 48, 10, 23},
 					{20, 20, 17, 15, 23},
@@ -432,8 +434,8 @@ func TestIsInvertibleMod(t *testing.T) {
 		{
 			name: "same order 5 but invertible mod 51",
 			matrix: &Matrix{
-				Order: 5,
-				Data: [][]int{
+				order: 5,
+				data: [][]int{
 					{6, 24, 44, 1, 15},
 					{13, 16, 48, 10, 23},
 					{20, 20, 17, 15, 23},
@@ -463,15 +465,15 @@ func TestCofactor(t *testing.T) {
 		{
 			name: "order 2",
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 3},
 					{9, 1},
 				},
 			},
 			wantCof: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, -9},
 					{-3, 1},
 				},
@@ -480,15 +482,15 @@ func TestCofactor(t *testing.T) {
 		{
 			name: "another order 2",
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{-23, 71},
 					{92, 86},
 				},
 			},
 			wantCof: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{86, -92},
 					{-71, -23},
 				},
@@ -497,16 +499,16 @@ func TestCofactor(t *testing.T) {
 		{
 			name: "order 3",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{0, 9, 3},
 					{2, 0, 4},
 					{3, 7, 0},
 				},
 			},
 			wantCof: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{-28, 12, 14},
 					{21, -9, 27},
 					{36, 6, -18},
@@ -516,16 +518,16 @@ func TestCofactor(t *testing.T) {
 		{
 			name: "another order 3",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
 				},
 			},
 			wantCof: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{-286, 44, 520},
 					{468, -72, -70},
 					{165, 305, -300},
@@ -533,13 +535,14 @@ func TestCofactor(t *testing.T) {
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Matrix{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			cof, err := test.matrix.Cofactor()
 			if err != nil {
 				t.Fatalf("Cofactor(m) returned unexpected error; %v\n%s", err, test.matrix)
 			}
-			if diff := cmp.Diff(cof, test.wantCof); diff != "" {
+			if diff := cmp.Diff(cof, test.wantCof, unxOpt); diff != "" {
 				t.Errorf("Cofactor(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, cof, test.wantCof, diff)
 			}
 		})
@@ -554,7 +557,7 @@ func TestCofactor_Error(t *testing.T) {
 	}{
 		{
 			name:   "order 1",
-			matrix: &Matrix{Order: 1, Data: [][]int{{1}}},
+			matrix: &Matrix{order: 1, data: [][]int{{1}}},
 		},
 	}
 	for _, test := range tests {
@@ -575,21 +578,21 @@ func TestTranspose(t *testing.T) {
 	}{
 		{
 			name:      "order 1",
-			matrix:    &Matrix{Order: 1, Data: [][]int{{1}}},
-			wantTrans: &Matrix{Order: 1, Data: [][]int{{1}}},
+			matrix:    &Matrix{order: 1, data: [][]int{{1}}},
+			wantTrans: &Matrix{order: 1, data: [][]int{{1}}},
 		},
 		{
 			name: "order 2",
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 2},
 					{3, 4},
 				},
 			},
 			wantTrans: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 3},
 					{2, 4},
 				},
@@ -598,16 +601,16 @@ func TestTranspose(t *testing.T) {
 		{
 			name: "order 3",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
 				},
 			},
 			wantTrans: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 20, 4},
 					{15, 0, 26},
 					{18, 11, 0},
@@ -617,16 +620,16 @@ func TestTranspose(t *testing.T) {
 		{
 			name: "another order 3",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{-286, 44, 520},
 					{468, -72, -70},
 					{165, 305, -300},
 				},
 			},
 			wantTrans: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{-286, 468, 165},
 					{44, -72, 305},
 					{520, -70, -300},
@@ -636,8 +639,8 @@ func TestTranspose(t *testing.T) {
 		{
 			name: "order 4",
 			matrix: &Matrix{
-				Order: 4,
-				Data: [][]int{
+				order: 4,
+				data: [][]int{
 					{5, 15, 18, 1},
 					{20, 0, 11, 2},
 					{4, 26, 0, 3},
@@ -645,8 +648,8 @@ func TestTranspose(t *testing.T) {
 				},
 			},
 			wantTrans: &Matrix{
-				Order: 4,
-				Data: [][]int{
+				order: 4,
+				data: [][]int{
 					{5, 20, 4, 4},
 					{15, 0, 26, 5},
 					{18, 11, 0, 6},
@@ -655,10 +658,11 @@ func TestTranspose(t *testing.T) {
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Matrix{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gotTrans := test.matrix.Transpose()
-			if diff := cmp.Diff(gotTrans, test.wantTrans); diff != "" {
+			if diff := cmp.Diff(gotTrans, test.wantTrans, unxOpt); diff != "" {
 				t.Errorf("Transpose(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, gotTrans, test.wantTrans, diff)
 			}
 		})
@@ -674,15 +678,15 @@ func TestAdjoint(t *testing.T) {
 		{
 			name: "order 2",
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 2},
 					{3, 4},
 				},
 			},
 			wantMatrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{4, -2},
 					{-3, 1},
 				},
@@ -691,16 +695,16 @@ func TestAdjoint(t *testing.T) {
 		{
 			name: "order 3",
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
 				},
 			},
 			wantMatrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{-286, 468, 165},
 					{44, -72, 305},
 					{520, -70, -300},
@@ -710,8 +714,8 @@ func TestAdjoint(t *testing.T) {
 		{
 			name: "order 4",
 			matrix: &Matrix{
-				Order: 4,
-				Data: [][]int{
+				order: 4,
+				data: [][]int{
 					{5, 15, 18, 1},
 					{20, 0, 11, 2},
 					{4, 26, 0, 3},
@@ -719,8 +723,8 @@ func TestAdjoint(t *testing.T) {
 				},
 			},
 			wantMatrix: &Matrix{
-				Order: 4,
-				Data: [][]int{
+				order: 4,
+				data: [][]int{
 					{-1525, 3120, 1100, -1145},
 					{488, -354, 1975, -815},
 					{3172, -511, -1930, 520},
@@ -729,13 +733,14 @@ func TestAdjoint(t *testing.T) {
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Matrix{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gotAdj, err := test.matrix.Adjoint()
 			if err != nil {
 				t.Fatalf("Adjoint(m) returned unexpected error; %v\n%s", err, test.matrix)
 			}
-			if diff := cmp.Diff(gotAdj, test.wantMatrix); diff != "" {
+			if diff := cmp.Diff(gotAdj, test.wantMatrix, unxOpt); diff != "" {
 				t.Errorf("Adjoint(\n%s) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, gotAdj, test.wantMatrix, diff)
 			}
 		})
@@ -750,7 +755,7 @@ func TestAdjoint_Error(t *testing.T) {
 	}{
 		{
 			name:   "order 1",
-			matrix: &Matrix{Order: 1, Data: [][]int{{1}}},
+			matrix: &Matrix{order: 1, data: [][]int{{1}}},
 		},
 	}
 	for _, test := range tests {
@@ -774,15 +779,15 @@ func TestInverseMod(t *testing.T) {
 			name: "order 2 mod 12",
 			mod:  12,
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 5},
 					{3, 4},
 				},
 			},
 			wantMatrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{4, 7},
 					{9, 1},
 				},
@@ -792,16 +797,16 @@ func TestInverseMod(t *testing.T) {
 			name: "order 3 mod 26",
 			mod:  26,
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{6, 24, 1},
 					{13, 16, 10},
 					{20, 17, 15},
 				},
 			},
 			wantMatrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{8, 5, 10},
 					{21, 8, 21},
 					{21, 12, 8},
@@ -812,16 +817,16 @@ func TestInverseMod(t *testing.T) {
 			name: "order 3 mod 27",
 			mod:  27,
 			matrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
 				},
 			},
 			wantMatrix: &Matrix{
-				Order: 3,
-				Data: [][]int{
+				order: 3,
+				data: [][]int{
 					{23, 9, 21},
 					{11, 9, 2},
 					{22, 23, 6},
@@ -829,13 +834,14 @@ func TestInverseMod(t *testing.T) {
 			},
 		},
 	}
+	unxOpt := cmp.AllowUnexported(Matrix{})
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			gotInverse, err := test.matrix.InverseMod(test.mod)
 			if err != nil {
 				t.Fatalf("InverseMod(\n%s\n, %d) returned unexpected error; %v", test.matrix, test.mod, err)
 			}
-			if diff := cmp.Diff(gotInverse, test.wantMatrix); diff != "" {
+			if diff := cmp.Diff(gotInverse, test.wantMatrix, unxOpt); diff != "" {
 				t.Errorf("InverseMod(\n%s\n, %d) =\n%s, want\n%s; diff want -> got:\n%s", test.matrix, test.mod, gotInverse, test.wantMatrix, diff)
 			}
 		})
@@ -851,15 +857,15 @@ func TestInverseMod_Error(t *testing.T) {
 	}{
 		{
 			name:   "order 1",
-			matrix: &Matrix{Order: 1, Data: [][]int{{1}}},
+			matrix: &Matrix{order: 1, data: [][]int{{1}}},
 			mod:    12,
 		},
 		{
 			name: "data out of bound",
 			mod:  12,
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 2},
 					{12, 10},
 				},
@@ -869,8 +875,8 @@ func TestInverseMod_Error(t *testing.T) {
 			name: "order 2 without inverse",
 			mod:  12,
 			matrix: &Matrix{
-				Order: 2,
-				Data: [][]int{
+				order: 2,
+				data: [][]int{
 					{1, 2},
 					{3, 4},
 				},
