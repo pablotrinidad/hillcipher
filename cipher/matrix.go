@@ -1,4 +1,4 @@
-package hillcipher
+package cipher
 
 import (
 	"fmt"

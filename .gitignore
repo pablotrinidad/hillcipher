@@ -16,3 +16,7 @@
 
 .idea/
 .vscode/
+
+
+# Binaries
+cli/cli
