@@ -1,4 +1,4 @@
-module github.com/pablotrinidad/hillcipher
+module github.com/pablotrinidad/hillcipher/cipher
 
 go 1.14
 
