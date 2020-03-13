@@ -65,3 +65,19 @@ func NewAlphabet(s string) *Alphabet {
 	}
 	return a
 }
+
+// String makes Alphabet implement Stringer
+func (a Alphabet) String() string {
+	return string(a.symbols)
+}
+
+// Symbols returns the alphabet's symbols
+func (a *Alphabet) Symbols() []rune {
+	return a.symbols
+}
+
+// Contains returns wether r is defined in alphabet
+func (a *Alphabet) Contains(r rune) bool {
+	_, found := a.symbolIndex[r]
+	return found
+}

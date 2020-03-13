@@ -26,6 +26,11 @@ func (m Matrix) String() string {
 	return b.String()
 }
 
+// Order return square matrix order
+func (m *Matrix) Order() int {
+	return m.order
+}
+
 // NewMatrix returns a new square matrix of the given order loaded with the given data.
 // The size of the input data must be exactly order squared (order^2).
 func NewMatrix(order int, data []int) (*Matrix, error) {

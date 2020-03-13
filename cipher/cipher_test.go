@@ -139,3 +139,31 @@ func TestNewAlphabet(t *testing.T) {
 		})
 	}
 }
+
+// TestContains verify implementation of alphabet contains
+func TestContains(t *testing.T) {
+	tests := []struct {
+		alphabet  *Alphabet
+		r         rune
+		contained bool
+	}{
+		{alphabet: NewAlphabet("01"), r: '1', contained: true},
+		{alphabet: NewAlphabet("01"), r: '2', contained: false},
+		{alphabet: NewAlphabet("0123456789abcdef"), r: 'f', contained: true},
+		{alphabet: NewAlphabet("0123456789abcdef"), r: 'g', contained: false},
+		{alphabet: NewAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), r: 'a', contained: false},
+		{alphabet: NewAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), r: 'A', contained: true},
+	}
+	for _, test := range tests {
+		in := "in"
+		if !test.contained {
+			in = "not in"
+		}
+		name := fmt.Sprintf("%q %s %s", test.r, in, test.alphabet)
+		t.Run(name, func(t *testing.T) {
+			if test.alphabet.Contains(test.r) != test.contained {
+				t.Errorf("Contains(%q) = %v, want %v", test.r, !test.contained, test.contained)
+			}
+		})
+	}
+}
