@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
-
-	cipher "github.com/pablotrinidad/hillcipher"
+	cipher "github.com/pablotrinidad/hillcipher/cipher"
 )
 
 func main() {
-	m := cipher.Matrix{}
-	fmt.Println(m)
+	cipher.NewAlphabet("holamundo")
 }

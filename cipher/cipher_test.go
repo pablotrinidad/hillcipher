@@ -102,3 +102,45 @@ func TestKeyString(t *testing.T) {
 		})
 	}
 }
+
+// TestNewAlphabet verifies correct initialization of alphaber
+func TestNewAlphabet(t *testing.T) {
+	tests := []struct {
+		name, data   string
+		wantAlphabet *Alphabet
+	}{
+		{
+			name:         "binary alphabet",
+			data:         "01",
+			wantAlphabet: &Alphabet{Symbols: []rune{'0', '1'}},
+		},
+		{
+			name:         "english alphabet",
+			data:         "abcdefghijklmnopqrstuvwxyz",
+			wantAlphabet: &Alphabet{Symbols: []rune{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}},
+		},
+		{
+			name:         "spanish alphabet without diacritics",
+			data:         "abcdefghijklmnñopqrstuvwxyz",
+			wantAlphabet: &Alphabet{Symbols: []rune{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}},
+		},
+		{
+			name:         "spanish alphabet with diacritics",
+			data:         "aábcdeéfghiíjklmnñoópqrstuúüvwxyz",
+			wantAlphabet: &Alphabet{Symbols: []rune{'a', 'á', 'b', 'c', 'd', 'e', 'é', 'f', 'g', 'h', 'i', 'í', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'ó', 'p', 'q', 'r', 's', 't', 'u', 'ú', 'ü', 'v', 'w', 'x', 'y', 'z'}},
+		},
+		{
+			name:         "spanish upper case without diacritics",
+			data:         "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+			wantAlphabet: &Alphabet{Symbols: []rune{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'}},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotAlphabet := NewAlphabet(test.data)
+			if diff := cmp.Diff(test.wantAlphabet, gotAlphabet); diff != "" {
+				t.Errorf("NewAlphabet(%q) = %v, want %v: diff want -> got \n%s", test.data, *gotAlphabet, *test.wantAlphabet, diff)
+			}
+		})
+	}
+}

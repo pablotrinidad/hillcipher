@@ -13,7 +13,9 @@ import (
 type Key Matrix
 
 // Alphabet is the set of symbols valid through a cipher
-type Alphabet []rune
+type Alphabet struct {
+	Symbols []rune
+}
 
 // Cipher is an instance of the Hill Cipher on an specific alphabet
 type Cipher struct {
@@ -44,4 +46,9 @@ func NewKey(k []int, mod int) (*Key, error) {
 	}
 	key := Key(*m)
 	return &key, nil
+}
+
+// NewAlphabet initializes a new Hill Cipher Alphabet
+func NewAlphabet(s string) *Alphabet {
+	return &Alphabet{Symbols: []rune(s)}
 }
