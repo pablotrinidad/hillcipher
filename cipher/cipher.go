@@ -47,10 +47,30 @@ func (c *Cipher) verifyKeyTextPair(rawM, rawK string) (*Matrix, []rune, error) {
 		return nil, nil, fmt.Errorf("failed to create key for %q; %v", k, err)
 	}
 	if len(msg)%key.order != 0 {
-		return nil, nil, fmt.Errorf("message length is not multiple of key's length, consider using EncryptWithPadding")
+		return nil, nil, fmt.Errorf("message length is not multiple of key's length, consider using EncryptWithPadding if encrypting message")
 	}
 	mKey := Matrix(*key)
 	return &mKey, msg, nil
+}
+
+// performOperations apply cipher matrix operations on the given key and text. It assume all
+// key and message validations were applied before. Returns the resulting string.
+func (c *Cipher) performOperations(key *Matrix, msg []rune) string {
+	// Use builder for optimum string creation
+	var result strings.Builder
+
+	for i := 0; i < len(msg); i += key.order {
+		vector := make([]int, key.order)
+		for j, r := range msg[i : i+key.order] {
+			vector[j], _ = c.alphabet.Stoi(r) // Neglect error because message is permutation of alphabet.
+		}
+		prodVector, _ := key.VectorProductMod(c.mod, vector...) // Neglect error because size is exact
+		for _, ri := range prodVector {
+			r, _ := c.alphabet.Itos(ri) // Neglect error because mod operation
+			result.WriteRune(r)
+		}
+	}
+	return result.String()
 }
 
 // Encrypt plain text using given key. Returns an error if either key or message don't belong
@@ -61,23 +81,24 @@ func (c *Cipher) Encrypt(rawM, rawK string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return c.performOperations(key, msg), nil
+}
 
-	// Use builder for optimum string creation
-	var cipherTxt strings.Builder
-
-	for i := 0; i < len(msg); i += key.order {
-		vector := make([]int, key.order)
-		for j, r := range msg[i : i+key.order] {
-			vector[j], _ = c.alphabet.Stoi(r) // Neglect error because message is permutation of alphabet.
-		}
-		prodVector, _ := key.VectorProductMod(c.mod, vector...) // Neglect error because size is exact
-		for _, ri := range prodVector {
-			r, _ := c.alphabet.Itos(ri) // Neglect error because mod operation
-			cipherTxt.WriteRune(r)
-		}
+// Decrypt cipher text using given key. Returns an error if either key or message don't belong
+// to the cipher's alphabet, if key is not invertible by cipher's modulo or if message length
+// is not multiple of key's order (matrix order).
+func (c *Cipher) Decrypt(rawM, rawK string) (string, error) {
+	key, plainText, err := c.verifyKeyTextPair(rawM, rawK)
+	if err != nil {
+		return "", err
 	}
 
-	return cipherTxt.String(), nil
+	invertedKey, err := key.InverseMod(c.mod)
+	if err != nil {
+		return "", fmt.Errorf("failed to invert key\n%s\n; %v", key, err)
+	}
+
+	return c.performOperations(invertedKey, plainText), nil
 }
 
 // Key represents a Hill Cipher key matrix
