@@ -206,6 +206,124 @@ func TestContains(t *testing.T) {
 	}
 }
 
+// TestStoi verify correct mapping between symbols and numbers
+func TestStoi(t *testing.T) {
+	tests := []struct {
+		alphabet *Alphabet
+		mapping  map[rune]int
+	}{
+		{
+			alphabet: NewAlphabet("01"),
+			mapping:  map[rune]int{'0': 0, '1': 1},
+		},
+		{
+			alphabet: NewAlphabet("0123456789ABCDEF"),
+			mapping:  map[rune]int{'0': 0, '1': 1, '2': 2, '3': 3, 'F': 15},
+		},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("alphabet %q", test.alphabet.String())
+		t.Run(name, func(t *testing.T) {
+			for r, want := range test.mapping {
+				got, err := test.alphabet.Stoi(r)
+				if err != nil {
+					t.Errorf("Stoi(%q) got unexpected error; %v", r, err)
+				}
+				if got != want {
+					t.Errorf("Stoi(%q) = %d, want %d", r, got, want)
+				}
+			}
+		})
+	}
+}
+
+// TestStoi_Error verify correct validations
+func TestStoi_Error(t *testing.T) {
+	tests := []struct {
+		alphabet       *Alphabet
+		invalidSymbols []rune
+	}{
+		{
+			alphabet:       NewAlphabet("01"),
+			invalidSymbols: []rune{'2'},
+		},
+		{
+			alphabet:       NewAlphabet("0123456789ABCDEF"),
+			invalidSymbols: []rune{'G', 'H', 'I', 'J'},
+		},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("alphabet %q", test.alphabet.String())
+		t.Run(name, func(t *testing.T) {
+			for _, r := range test.invalidSymbols {
+				_, err := test.alphabet.Stoi(r)
+				if err == nil {
+					t.Errorf("Stoi(%q) got non-nil error, expected error", r)
+				}
+			}
+		})
+	}
+}
+
+// TestNewCipher verify correct creation of cipher
+func TestNewCipher(t *testing.T) {
+	tests := []struct {
+		name       string
+		alphabet   *Alphabet
+		wantCipher *Cipher
+	}{
+		{
+			name:       "english alphabet",
+			alphabet:   NewAlphabet("abcdefghijklmnopqrstuvwxyz"),
+			wantCipher: &Cipher{mod: 26},
+		},
+		{
+			name:       "hex alphabet",
+			alphabet:   NewAlphabet("0123456789ABCDEF"),
+			wantCipher: &Cipher{mod: 16},
+		},
+		{
+			name:       "binary alphabet",
+			alphabet:   NewAlphabet("01"),
+			wantCipher: &Cipher{mod: 2},
+		},
+	}
+	unxOpt := cmp.AllowUnexported(Cipher{}, Alphabet{})
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.wantCipher.alphabet = *test.alphabet
+			gotCipher, err := NewCipher(test.alphabet)
+			if err != nil {
+				t.Fatalf("NewCipher(%s) returned unexpected error; %v", test.alphabet, err)
+			}
+			if diff := cmp.Diff(test.wantCipher, gotCipher, unxOpt); diff != "" {
+				t.Errorf("NewCipher(%s) = %v, want %d; diff want -> got %s", test.alphabet, gotCipher, test.wantCipher, diff)
+			}
+		})
+	}
+}
+
+// TestNewCipher_Error verify method validates input data
+func TestNewCipher_Error(t *testing.T) {
+	tests := []struct {
+		name     string
+		alphabet *Alphabet
+	}{
+		{
+			name:     "one-symbol alphabet",
+			alphabet: NewAlphabet("A"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := NewCipher(test.alphabet)
+			if err == nil {
+				t.Fatalf("NewCipher(%s) got non-nil error, expected error", test.alphabet)
+			}
+		})
+	}
+}
+
 // TestEncryption verify corrrectness of algorithm
 func TestEncryption(t *testing.T) {
 	tests := []struct {
