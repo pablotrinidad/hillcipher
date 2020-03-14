@@ -84,20 +84,15 @@ func (c *Cipher) Encrypt(rawM, rawK string) (string, error) {
 	return c.performOperations(key, msg), nil
 }
 
-// Decrypt cipher text using given key. Returns an error if either key or message don't belong
-// to the cipher's alphabet, if key is not invertible by cipher's modulo or if message length
+// Decrypt cipher text using given key. Returns an error if either key or cipher text don't belong
+// to the cipher's alphabet, if key is not invertible by cipher's modulo or if cipher text length
 // is not multiple of key's order (matrix order).
 func (c *Cipher) Decrypt(rawM, rawK string) (string, error) {
 	key, plainText, err := c.verifyKeyTextPair(rawM, rawK)
 	if err != nil {
 		return "", err
 	}
-
-	invertedKey, err := key.InverseMod(c.mod)
-	if err != nil {
-		return "", fmt.Errorf("failed to invert key\n%s\n; %v", key, err)
-	}
-
+	invertedKey, _ := key.InverseMod(c.mod) // Neglect error since it's checked by key-text verification
 	return c.performOperations(invertedKey, plainText), nil
 }
 
