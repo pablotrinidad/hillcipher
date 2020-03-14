@@ -23,7 +23,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2-beta
     - name: Run tests
-      - run: cd cipher && go test -v -covermode=count
+      run: cd cipher && go test -v -covermode=count
 
   # coverage:
   #   runs-on: ubuntu-latest
