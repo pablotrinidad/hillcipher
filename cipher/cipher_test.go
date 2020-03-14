@@ -16,12 +16,12 @@ func TestNewKey(t *testing.T) {
 		wantKey *Key
 	}{
 		{
-			name: "order 2 mod 2",
+			name: "order 2 mod 2 1011",
 			mod:  2, data: []int{1, 0, 1, 1},
 			wantKey: &Key{order: 2, data: [][]int{{1, 0}, {1, 1}}},
 		},
 		{
-			name: "order 3 mod 27",
+			name: "order 3 mod 27 FORTALEZA",
 			mod:  27,
 			data: []int{5, 15, 18, 20, 0, 11, 4, 26, 0},
 			wantKey: &Key{
@@ -30,6 +30,35 @@ func TestNewKey(t *testing.T) {
 					{5, 15, 18},
 					{20, 0, 11},
 					{4, 26, 0},
+				},
+			},
+		},
+		{
+			name: "order 4 mod 27 UNAMFCIENCIASCYS",
+			mod:  27,
+			data: []int{21, 13, 0, 12, 5, 2, 8, 4, 13, 2, 8, 0, 19, 2, 25, 19},
+			wantKey: &Key{
+				order: 4,
+				data: [][]int{
+					{21, 13, 0, 12},
+					{5, 2, 8, 4},
+					{13, 2, 8, 0},
+					{19, 2, 25, 19},
+				},
+			},
+		},
+		{
+			name: "order 5 mod 27 ÑOMEGUSTALCORONAVIRUSHELP",
+			mod:  27,
+			data: []int{14, 15, 12, 4, 6, 21, 19, 20, 0, 11, 2, 15, 18, 15, 13, 0, 22, 8, 18, 21, 19, 7, 4, 11, 16},
+			wantKey: &Key{
+				order: 5,
+				data: [][]int{
+					{14, 15, 12, 4, 6},
+					{21, 19, 20, 0, 11},
+					{2, 15, 18, 15, 13},
+					{0, 22, 8, 18, 21},
+					{19, 7, 4, 11, 16},
 				},
 			},
 		},
@@ -188,6 +217,20 @@ func TestEncryption(t *testing.T) {
 			msg:            "CONSUL",
 			key:            "FORTALEZA",
 			wantCipherText: "KUTÑOB",
+		},
+		{
+			name:           "spanish alphabet key size 4",
+			alphabet:       "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+			msg:            "IBOMBATOMICALLYSOCRATESPHILOSOPHIESANDHYPOTHESESCANTDEFINEHOWIBEDROPPINGTHESEMOCKERY",
+			key:            "UNAMFCIENCIASCYS",
+			wantCipherText: "BUKBMJLUFLZXICÑCQHSKPAOGZKGHDLAGELUÑRLOMUBTVSEÑIMFVÑVÑGRSAQNÑTZÑDSGPZIEDKGJRUKHAVFMP",
+		},
+		{
+			name:           "spanish alphabet key size 5",
+			alphabet:       "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+			msg:            "LYRICALLYPERFORMARMEDROBBERYFLEEWITHLOTTERYPOSSIBLYTHEYSPOTTEDMEBATTLESCARREDSHOGUNEXPLOSIONWHENMYPENHITSTREMENDOUSULTRAVIOLETSHINEBLINDFORENSICS",
+			key:            "ÑOMEGUSTALCORONAVIRUSHELP",
+			wantCipherText: "GIDPJHLBJEÑVQEAXINMKPÑHOAKUBZTEDYZKVMKIAXLCLPOOECLJXXNHVIBKTXÑRMPÑÑNRAQÑFQXOLTLENWOIMROSIVENNFOUSDZWKSMFOVVTZPLCMRZOXAXYBNDLQDLLAAPHXÑROPYQJKEDZJ",
 		},
 	}
 	for _, test := range tests {
