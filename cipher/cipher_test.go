@@ -265,6 +265,65 @@ func TestStoi_Error(t *testing.T) {
 	}
 }
 
+// TestItos verify correct mapping between symbols and numbers
+func TestItos(t *testing.T) {
+	tests := []struct {
+		alphabet *Alphabet
+		mapping  map[int]rune
+	}{
+		{
+			alphabet: NewAlphabet("01"),
+			mapping:  map[int]rune{0: '0', 1: '1'},
+		},
+		{
+			alphabet: NewAlphabet("0123456789ABCDEF"),
+			mapping:  map[int]rune{0: '0', 1: '1', 2: '2', 3: '3', 15: 'F'},
+		},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("alphabet %q", test.alphabet.String())
+		t.Run(name, func(t *testing.T) {
+			for i, want := range test.mapping {
+				got, err := test.alphabet.Itos(i)
+				if err != nil {
+					t.Errorf("Itos(%d) got unexpected error; %v", i, err)
+				}
+				if got != want {
+					t.Errorf("Itos(%d) = %d, want %d", i, got, want)
+				}
+			}
+		})
+	}
+}
+
+// TestItos_Error verify correct validations
+func TestItos_Error(t *testing.T) {
+	tests := []struct {
+		alphabet       *Alphabet
+		invalidSymbols []int
+	}{
+		{
+			alphabet:       NewAlphabet("01"),
+			invalidSymbols: []int{2},
+		},
+		{
+			alphabet:       NewAlphabet("0123456789ABCDEF"),
+			invalidSymbols: []int{-1, 16, 100},
+		},
+	}
+	for _, test := range tests {
+		name := fmt.Sprintf("alphabet %q", test.alphabet.String())
+		t.Run(name, func(t *testing.T) {
+			for _, i := range test.invalidSymbols {
+				_, err := test.alphabet.Itos(i)
+				if err == nil {
+					t.Errorf("Itos(%q) got non-nil error, expected error", i)
+				}
+			}
+		})
+	}
+}
+
 // TestNewCipher verify correct creation of cipher
 func TestNewCipher(t *testing.T) {
 	tests := []struct {
