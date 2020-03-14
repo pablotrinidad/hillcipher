@@ -350,6 +350,12 @@ func TestIsInvertibleMod(t *testing.T) {
 	}{
 		{name: "order 0 not invertible mod 10", matrix: &Matrix{}, isInvertible: false, mod: 10},
 		{
+			name:         "order 1 not invertible mod less than 2",
+			matrix:       &Matrix{order: 1, data: [][]int{{1}}},
+			isInvertible: false,
+			mod:          1,
+		},
+		{
 			name:         "order 1 invertible mod 10",
 			matrix:       &Matrix{order: 1, data: [][]int{{1}}},
 			isInvertible: true,
@@ -856,6 +862,11 @@ func TestInverseMod_Error(t *testing.T) {
 		mod    int
 	}{
 		{
+			name:   "mod less than 2",
+			matrix: &Matrix{order: 1, data: [][]int{{1}}},
+			mod:    1,
+		},
+		{
 			name:   "order 1",
 			matrix: &Matrix{order: 1, data: [][]int{{1}}},
 			mod:    12,
@@ -937,6 +948,70 @@ func TestVectorProductMod(t *testing.T) {
 			}
 			if diff := cmp.Diff(test.wantVector, gotVector); diff != "" {
 				t.Errorf("VectorProductMod(%d, %v) = %v, want %v: diff want -> got %s", test.mod, test.multVector, gotVector, test.wantVector, diff)
+			}
+		})
+	}
+}
+
+// TestVectorProductMod_Error verifies validations
+func TestVectorProductMod_Error(t *testing.T) {
+	tests := []struct {
+		name       string
+		matrix     *Matrix
+		mod        int
+		multVector []int
+	}{
+		{
+			name: "vector different size than matrix order",
+			mod:  2,
+			matrix: &Matrix{
+				order: 2,
+				data: [][]int{
+					{1, 2},
+					{3, 4},
+				},
+			},
+			multVector: []int{0, 1, 2},
+		},
+		{
+			name: "mod less than 2",
+			mod:  1,
+			matrix: &Matrix{
+				order: 3,
+				data: [][]int{
+					{5, 15, 18},
+					{20, 0, 11},
+					{4, 26, 0},
+				},
+			},
+			multVector: []int{2, 15, 13},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := test.matrix.VectorProductMod(test.mod, test.multVector...)
+			if err == nil {
+				t.Fatalf("VectorProductMod(%d, %v) return non-nil error", test.mod, test.multVector)
+			}
+		})
+	}
+}
+
+// TestMatrixOrder verify order definition
+func TestMatrixOrder(t *testing.T) {
+	tests := []struct {
+		matrix    *Matrix
+		wantOrder int
+	}{
+		{matrix: &Matrix{order: 1}, wantOrder: 1},
+		{matrix: &Matrix{order: 2}, wantOrder: 2},
+		{matrix: &Matrix{order: 3}, wantOrder: 3},
+		{matrix: &Matrix{order: 100}, wantOrder: 100},
+	}
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("order %d", test.wantOrder), func(t *testing.T) {
+			if test.matrix.Order() != test.wantOrder {
+				t.Errorf("Order() = %d, want %d", test.matrix.Order(), test.wantOrder)
 			}
 		})
 	}

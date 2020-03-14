@@ -206,6 +206,35 @@ func TestContains(t *testing.T) {
 	}
 }
 
+// TestBelongs verify implementation of alphabet Belongs
+func TestBelongs(t *testing.T) {
+	tests := []struct {
+		alphabet  *Alphabet
+		substring string
+		contained bool
+	}{
+		{alphabet: NewAlphabet("01"), substring: "100101101", contained: true},
+		{alphabet: NewAlphabet("01"), substring: "2", contained: false},
+		{alphabet: NewAlphabet("01"), substring: "0", contained: true},
+		{alphabet: NewAlphabet("0123456789abcdef"), substring: "f14e92a", contained: true},
+		{alphabet: NewAlphabet("0123456789abcdef"), substring: "asd92ssa0239asdgkq", contained: false},
+		{alphabet: NewAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), substring: "abcdefghiu", contained: false},
+		{alphabet: NewAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), substring: "HOLAMUNDO", contained: true},
+	}
+	for _, test := range tests {
+		in := "in"
+		if !test.contained {
+			in = "not in"
+		}
+		name := fmt.Sprintf("%q %s %s", test.substring, in, test.alphabet)
+		t.Run(name, func(t *testing.T) {
+			if test.alphabet.Belongs(test.substring) != test.contained {
+				t.Errorf("Belongs(%q) = %v, want %v", test.substring, !test.contained, test.contained)
+			}
+		})
+	}
+}
+
 // TestStoi verify correct mapping between symbols and numbers
 func TestStoi(t *testing.T) {
 	tests := []struct {
@@ -430,6 +459,53 @@ func TestEncryption(t *testing.T) {
 			}
 			if gotCipherText != test.wantCipherText {
 				t.Errorf("Encrypt(msg:%q, key:%q) = %q, want %q", test.msg, test.key, gotCipherText, test.wantCipherText)
+			}
+		})
+	}
+}
+
+// TestEncryption_Error validations of input data
+func TestEncryption_Error(t *testing.T) {
+	tests := []struct {
+		name, alphabet, msg, key string
+	}{
+		{
+			name:     "key does not belong to alphabet",
+			alphabet: "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+			key:      "fortaleza",
+		},
+		{
+			name:     "message does not belong to alphabet",
+			alphabet: "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+			msg:      "sup",
+		},
+		{
+			name:     "message length is not multiple of key's length",
+			alphabet: "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
+			msg:      "SUPWORLD",
+			key:      "FORTALEZA",
+		},
+		{
+			name:     "key is not invertible in dict",
+			alphabet: "0123456789ABCDEF",
+			key:      "92666C703E4135B097C7D2EA9C699C274C4F9442F13D38013F28C1765D3461A52E82261E74EAB8C35D6BA6457DF68830B0E0",
+		},
+		{
+			name:     "key length is less than 2",
+			alphabet: "0123456789ABCDEF",
+			key:      "A",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			alphabet := NewAlphabet(test.alphabet)
+			cipher, err := NewCipher(alphabet)
+			if err != nil {
+				t.Fatalf("NewCipher(%q) returned unexpected error; %v", alphabet, err)
+			}
+			_, err = cipher.Encrypt(test.msg, test.key)
+			if err == nil {
+				t.Fatalf("Encrypt(msg:%q, key:%q) returned non-nil error, expected error", test.msg, test.key)
 			}
 		})
 	}
