@@ -28,15 +28,14 @@ func NewCipher(alphabet *Alphabet) (*Cipher, error) {
 	return &Cipher{mod: n, alphabet: *alphabet}, nil
 }
 
-// Encrypt plain text using given key. Returns an error if either key or message don't belong
-// to the cipher's alphabet, if key is not invertible by cipher's modulo or if message length
-// is not multiple of key's order (matrix order).
-func (c *Cipher) Encrypt(rawM, rawK string) (string, error) {
+// verifyKeyTextPair makes sure key and text are usable in the current cipher.
+// Returns Key and message if valid.
+func (c *Cipher) verifyKeyTextPair(rawM, rawK string) (*Matrix, []rune, error) {
 	if !c.alphabet.Belongs(rawM) {
-		return "", fmt.Errorf("message %q does not belong to alphabet %q", rawM, c.alphabet)
+		return nil, nil, fmt.Errorf("message %q does not belong to alphabet %q", rawM, c.alphabet)
 	}
 	if !c.alphabet.Belongs(rawK) {
-		return "", fmt.Errorf("key %q does not belong to alphabet %q", rawK, c.alphabet)
+		return nil, nil, fmt.Errorf("key %q does not belong to alphabet %q", rawK, c.alphabet)
 	}
 	msg, k := []rune(rawM), []rune(rawK)
 	kInt := make([]int, len(k))
@@ -45,21 +44,33 @@ func (c *Cipher) Encrypt(rawM, rawK string) (string, error) {
 	}
 	key, err := NewKey(kInt, c.mod)
 	if err != nil {
-		return "", fmt.Errorf("failed to create key for %q; %v", k, err)
+		return nil, nil, fmt.Errorf("failed to create key for %q; %v", k, err)
 	}
 	if len(msg)%key.order != 0 {
-		return "", fmt.Errorf("message length is not multiple of key's length, consider using EncryptWithPadding")
+		return nil, nil, fmt.Errorf("message length is not multiple of key's length, consider using EncryptWithPadding")
+	}
+	mKey := Matrix(*key)
+	return &mKey, msg, nil
+}
+
+// Encrypt plain text using given key. Returns an error if either key or message don't belong
+// to the cipher's alphabet, if key is not invertible by cipher's modulo or if message length
+// is not multiple of key's order (matrix order).
+func (c *Cipher) Encrypt(rawM, rawK string) (string, error) {
+	key, msg, err := c.verifyKeyTextPair(rawM, rawK)
+	if err != nil {
+		return "", err
 	}
 
-	keyM := Matrix(*key)
-	msgRunes := []rune(msg)
+	// Use builder for optimum string creation
 	var cipherTxt strings.Builder
+
 	for i := 0; i < len(msg); i += key.order {
 		vector := make([]int, key.order)
-		for j, r := range msgRunes[i : i+key.order] {
+		for j, r := range msg[i : i+key.order] {
 			vector[j], _ = c.alphabet.Stoi(r) // Neglect error because message is permutation of alphabet.
 		}
-		prodVector, _ := keyM.VectorProductMod(c.mod, vector...) // Neglect error because size is exact
+		prodVector, _ := key.VectorProductMod(c.mod, vector...) // Neglect error because size is exact
 		for _, ri := range prodVector {
 			r, _ := c.alphabet.Itos(ri) // Neglect error because mod operation
 			cipherTxt.WriteRune(r)
