@@ -1,22 +1,26 @@
-name: CLI
-on: [push]
-
+on: [push, pull_request]
+name: Cipher
 jobs:
   build:
-    name: Build package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: actions/setup-go@v2-beta
-        with:
-          go-version: '1.14'
-      - run: cd cli && go build
+    - name: Install Go
+      uses: actions/setup-go@v2-beta
+      with:
+        go-version: '1.14'
+    - name: Checkout code
+      uses: actions/checkout@v2-beta
+    - name: Build
+      run: cd cli && go build
+
   test:
-    name: Run unit tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: actions/setup-go@v2-beta
-        with:
-          go-version: '1.14'
-      - run: cd cli && go test -v
+    - name: Install Go
+      uses: actions/setup-go@v2-beta
+      with:
+        go-version: '1.14'
+    - name: Checkout code
+      uses: actions/checkout@v2-beta
+    - name: Run tests
+      run: cd cli && go test -v -covermode=count
