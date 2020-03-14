@@ -36,7 +36,7 @@ func IsModUnit(a, n int) bool {
 	return gcd == 1
 }
 
-// ModularInverse returns the modular invers of a over m, returns error if a is not unit of Zn
+// ModularInverse returns the modular inverse of a over m, returns error if a is not unit of Zn
 func ModularInverse(a, m int) (int, error) {
 	if m == 1 {
 		return 0, nil

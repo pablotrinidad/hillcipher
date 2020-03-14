@@ -1,7 +1,10 @@
-// Package cipher implements the Hill Cipher algorithm. the Hill cipher
+// Package cipher implements the Hill Cipher algorithm. Hill Cipher
 // is a polygraphic substitution cipher that encrypts messages through
 // matrix transformations. Matrix operations and modular arithmetic
 // definitions are implemented and exported as part of the package.
+// Hill Cipher is broken by cipher-text only attacks. DON'T use this
+// package for any purpose other than experimentation and educational
+// purposes.
 package cipher
 
 import (
@@ -25,7 +28,9 @@ func NewCipher(alphabet *Alphabet) (*Cipher, error) {
 	return &Cipher{mod: n, alphabet: *alphabet}, nil
 }
 
-// Encrypt ciphers plain text using given key
+// Encrypt plain text using given key. Returns an error if either key or message don't belong
+// to the cipher's alphabet, if key is not invertible by cipher's modulo or if message length
+// is not multiple of key's order (matrix order).
 func (c *Cipher) Encrypt(rawM, rawK string) (string, error) {
 	if !c.alphabet.Belongs(rawM) {
 		return "", fmt.Errorf("message %q does not belong to alphabet %q", rawM, c.alphabet)
