@@ -11,7 +11,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2-beta
     - name: Build
-      - run: cd cipher && go build
+      run: cd cipher && go build
 
   test:
     runs-on: ubuntu-latest
