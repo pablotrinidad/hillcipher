@@ -40,10 +40,10 @@ jobs:
     - name: Convert coverage to lcov
       uses: jandelgado/gcov2lcov-action@v1.0.0
       with:
-          infile: .coverage/coverage.out
-          outfile: cipher_coverage.lcov
+          infile: .coverage/cipher.out
+          outfile: .coverage/cipher.lcov
     - name: Coveralls
       uses: coverallsapp/github-action@v1.0.1
       with:
           github-token: ${{ secrets.github_token }}
-          path-to-lcov: cipher_coverage.lcov
+          path-to-lcov: .coverage/cipher.lcov
