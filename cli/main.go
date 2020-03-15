@@ -46,7 +46,7 @@ func init() {
 	}
 
 	if _, found := validModes[*flagMode]; !found {
-		fmt.Fprintf(os.Stderr, "got invalid cipher mode %s", flagMode)
+		fmt.Fprintf(os.Stderr, "got invalid cipher mode %s", *flagMode)
 	}
 	excMode = validModes[*flagMode]
 }
