@@ -19,11 +19,32 @@ func main() {
 			name: "Spanish alphabet (uppercase) without diacritics",
 			alphabet: "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ",
 			samples: []keyTextPair{
-				keyTextPair{"FORTALEZA", "CONSUL"},
-				keyTextPair{"FORTALEZA", "UUNAMFCIENCIASS"},
-				keyTextPair{"IKEY", "CRIPTOGRAFIA"},
-				keyTextPair{"IAMAVERYLOONGKEY", "CRIPTOGRAFIA"},
-				keyTextPair{"IAMAVERYLOONGKEYINFACTLONGERTHANPAST", "CRIPTOGRAFIA"},
+				keyTextPair{"FORTALEZA", "CONSUL"}, // N: 3
+				keyTextPair{"FORTALEZA", "UUNAMFCIENCIASS"}, // N: 3
+				keyTextPair{"IKEY", "CRIPTOGRAFIA"}, // N: 2
+				keyTextPair{"IAMAVERYLOONGKEY", "CRIPTOGRAFIA"}, // N: 4
+				keyTextPair{"NHWTTNRPOHVZOYRNDBMAXIJXLWVSMJOGKUSJ", "CRIPTOGRAFIA"}, // N: 6
+				keyTextPair{"NHWTTNRPOHVZOYRNDBMAXIJXLWVSMJOGKUSJ", "CRIPTOGRAFIAYSEGURIDADESUNCURSOIMPARTIDOENLAFACULTADDECIENCIASUNAM"}, // N: 6
+			},
+		},
+		{
+			name: "Binary alphabet",
+			alphabet: "01",
+			samples: []keyTextPair{
+				keyTextPair{"1011", "0110101100101101"},
+				keyTextPair{"0000101111100011100111010", "11111"},
+			},
+		},
+		{
+			name: "ASCII alphabet with digits and punctuation",
+			alphabet: `0123456789 :abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ()'`,
+			samples: []keyTextPair{
+				keyTextPair{`jb98v4 e0GgIJ5kKxVLtyRzdc`, "I'm a message that want's to be a key :)"}, // N: 5
+				keyTextPair{`FORTAleza`, "CONSUL"},
+				keyTextPair{
+					`O3f0URuwcmMwyJ iO2Cc2zksDH1789(oAI1IelV5uLe'twQjELyh3FS1TyE'c5UCpAGTL2L3vl01wn5TBt66rpHBXGUeQ4yZ2C66`, // N: 10
+					`Said you wouldnt be home late tonight I gave up waiting at seventeen past midnight Now my only company's a half full glass of wine`,
+				},
 			},
 		},
 	}
