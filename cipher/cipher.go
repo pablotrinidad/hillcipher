@@ -44,7 +44,7 @@ func (c *Cipher) verifyKeyTextPair(rawM, rawK string) (*Matrix, []rune, error) {
 	}
 	key, err := NewKey(kInt, c.mod)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create key for %q; %v", k, err)
+		return nil, nil, fmt.Errorf("failed to create key for %q; %v", rawK, err)
 	}
 	if len(msg)%key.order != 0 {
 		return nil, nil, fmt.Errorf("message length is not multiple of key's length, consider adding padding")
